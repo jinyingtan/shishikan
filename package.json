@@ -8,9 +8,18 @@
     "start": "next start"
   },
   "dependencies": {
-    "@material-ui/core": "^4.11.0",
-    "next": "9.5.1",
-    "react": "16.13.1",
-    "react-dom": "16.13.1"
+    "@chakra-ui/react": "^1.0.2",
+    "@emotion/react": "^11.1.1",
+    "@emotion/styled": "^11.0.0",
+    "dayjs": "^1.9.6",
+    "firebase": "^8.1.2",
+    "firebase-admin": "^9.4.1",
+    "formik": "^2.2.5",
+    "framer-motion": "^2.9.5",
+    "next": "^10.0.3",
+    "nookies": "^2.5.0",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "yup": "^0.32.1"
   }
 }
