@@ -1,11 +1,41 @@
-import React from 'react';
-import { Flex, IconButton, useColorMode, Icon, Input, Button, HStack } from '@chakra-ui/react';
+import React, { useState, useEffect } from 'react';
+import {
+  Flex,
+  IconButton,
+  useColorMode,
+  Icon,
+  Input,
+  Button,
+  HStack,
+  Avatar,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+} from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 import { MdMenu } from 'react-icons/md';
+import { useAuth } from '@components/auth';
+import { useAuthModal } from '@components/auth/authModal';
+import { FcGoogle } from 'react-icons/fc';
+import api from '@api';
 
 const TopNavbar = () => {
   const { colorMode } = useColorMode();
   const bgColor = { light: 'white', dark: 'gray.900' };
+  const auth = useAuth();
+  const authModal = useAuthModal();
+
+  const registerWithGoogle = () => {
+    api.auth.registerUserWithGoogle().then((response) => {
+      console.log('registered', response);
+    })
+  }
+
+  console.log(auth)
 
   return (
     <Flex
@@ -32,10 +62,47 @@ const TopNavbar = () => {
         display={{ base: 'flex', md: 'none' }}
       />
 
-      <HStack display={{ base: 'none', md: 'flex' }}>
-        <Button variant="ghost">Login</Button>
-        <Button colorScheme="green">Join free</Button>
-      </HStack>
+      {auth.user ? (
+        <HStack display={{ base: 'none', md: 'flex' }} pl="5px">
+          <Button >Add food</Button>
+          <Avatar size="sm" name={auth.user.displayName} src={auth.user.photoURL} />
+        </HStack>
+      ) : (
+        <HStack display={{ base: 'none', md: 'flex' }}>
+          <Button variant="ghost" onClick={authModal.login.onOpen}>
+            Login
+          </Button>
+          <Button colorScheme="green" onClick={authModal.register.onOpen}>
+            Join free
+          </Button>
+        </HStack>
+      )}
+
+      <Modal isOpen={authModal.register.isOpen} onClose={authModal.register.onClose} isCentered>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Register</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Button w="100%" leftIcon={<FcGoogle />} onClick={registerWithGoogle}>
+              Register with Google
+            </Button>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+
+      <Modal isOpen={authModal.login.isOpen} onClose={authModal.login.onClose} isCentered>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Login</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Button w="100%" leftIcon={<FcGoogle />}>
+              Login with Google
+            </Button>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </Flex>
   );
 };
