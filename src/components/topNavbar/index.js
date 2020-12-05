@@ -35,7 +35,6 @@ const TopNavbar = () => {
     })
   }
 
-  console.log(auth)
 
   return (
     <Flex
