@@ -26,6 +26,7 @@ import {
   DrawerHeader,
   DrawerOverlay,
   DrawerContent,
+  Divider,
 } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 import { MdMenu } from 'react-icons/md';
@@ -44,6 +45,7 @@ const TopNavbar = () => {
   const registerWithGoogle = () => {
     api.auth.registerUserWithGoogle().then((response) => {
       console.log('registered', response);
+      authModal.register.onClose();
     });
   };
 
@@ -66,6 +68,7 @@ const TopNavbar = () => {
       bg={bgColor[colorMode]}
       boxShadow="base"
       zIndex="100"
+      height="56px"
     >
       <IconButton variant="ghost" aria-label="Search" icon={<StarIcon />} />
 
@@ -78,6 +81,16 @@ const TopNavbar = () => {
         display={{ base: 'flex', md: 'none' }}
         onClick={onOpen}
       />
+
+      {auth.user ? (
+        <>
+          <HStack display={{ base: 'none', md: 'flex' }} pl="5px">
+            <Button variant="ghost">Nearby</Button>
+            <Button variant="ghost">MyLists</Button>
+          </HStack>
+          <Divider orientation="vertical" />{' '}
+        </>
+      ) : null}
 
       {auth.user ? (
         <HStack display={{ base: 'none', md: 'flex' }} pl="5px">
