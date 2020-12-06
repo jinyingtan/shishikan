@@ -14,6 +14,10 @@ class AuthAPI {
     return [token, userProfile, userDoc];
   }
 
+  async logout() {
+    await firebaseAuth.signOut();
+  }
+
   async _googleAuth() {
     const provider = new firebase.auth.GoogleAuthProvider();
     return await firebaseAuth.signInWithPopup(provider);

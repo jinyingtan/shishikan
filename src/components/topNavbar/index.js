@@ -47,6 +47,12 @@ const TopNavbar = () => {
     });
   };
 
+  const logout = () => {
+    api.auth.logout().then(() => {
+      console.log('logout done');
+    });
+  };
+
   return (
     <Flex
       alignItems="center"
@@ -82,7 +88,7 @@ const TopNavbar = () => {
               <MenuItem>View Profile</MenuItem>
               <MenuItem>Settings</MenuItem>
               <MenuDivider />
-              <MenuItem>Logout</MenuItem>
+              <MenuItem onClick={logout}>Logout</MenuItem>
             </MenuList>
           </Menu>
         </HStack>
