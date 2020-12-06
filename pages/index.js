@@ -4,7 +4,7 @@ import { verifyToken, getUserFromToken } from '@utils/auth';
 
 export async function getServerSideProps(ctx) {
   try {
-    const token = verifyToken(ctx);
+    const token = await verifyToken(ctx);
     if (!token) {
       ctx.res.writeHead(302, { Location: '/' });
       ctx.res.end();

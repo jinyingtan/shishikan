@@ -15,6 +15,16 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  MenuItemOption,
+  MenuGroup,
+  MenuOptionGroup,
+  MenuIcon,
+  MenuCommand,
+  MenuDivider,
 } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 import { MdMenu } from 'react-icons/md';
@@ -32,9 +42,8 @@ const TopNavbar = () => {
   const registerWithGoogle = () => {
     api.auth.registerUserWithGoogle().then((response) => {
       console.log('registered', response);
-    })
-  }
-
+    });
+  };
 
   return (
     <Flex
@@ -63,8 +72,15 @@ const TopNavbar = () => {
 
       {auth.user ? (
         <HStack display={{ base: 'none', md: 'flex' }} pl="5px">
-          <Button >Add food</Button>
-          <Avatar size="sm" name={auth.user.displayName} src={auth.user.photoURL} />
+          <Button>Add food</Button>
+          <Menu isLazy>
+            <MenuButton as={Avatar} size="sm" name={auth.user.displayName} src={auth.user.photoURL} />
+            <MenuList>
+              <MenuItem>View Profile</MenuItem>
+              <MenuItem>Settings</MenuItem>
+              <MenuItem>Logout</MenuItem>
+            </MenuList>
+          </Menu>
         </HStack>
       ) : (
         <HStack display={{ base: 'none', md: 'flex' }}>

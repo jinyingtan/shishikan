@@ -1,7 +1,7 @@
 import nookies from 'nookies';
 import admin from '@utils/admin-firebase';
 
-export const verifyToken = (ctx) => {
+export const verifyToken = async (ctx) => {
   const cookies = nookies.get(ctx);
   const token = await admin.auth().verifyIdToken(cookies.token);
   return token;
