@@ -12,19 +12,20 @@ import {
   ModalOverlay,
   ModalContent,
   ModalHeader,
-  ModalFooter,
   ModalBody,
   ModalCloseButton,
   Menu,
   MenuButton,
   MenuList,
   MenuItem,
-  MenuItemOption,
-  MenuGroup,
-  MenuOptionGroup,
-  MenuIcon,
-  MenuCommand,
   MenuDivider,
+  useDisclosure,
+  Drawer,
+  DrawerBody,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerOverlay,
+  DrawerContent,
 } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 import { MdMenu } from 'react-icons/md';
@@ -38,6 +39,7 @@ const TopNavbar = () => {
   const bgColor = { light: 'white', dark: 'gray.900' };
   const auth = useAuth();
   const authModal = useAuthModal();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const registerWithGoogle = () => {
     api.auth.registerUserWithGoogle().then((response) => {
@@ -68,6 +70,7 @@ const TopNavbar = () => {
         aria-label="Menu"
         icon={<Icon as={MdMenu} marginBottom="1" w={6} h={6} />}
         display={{ base: 'flex', md: 'none' }}
+        onClick={onOpen}
       />
 
       {auth.user ? (
@@ -78,6 +81,7 @@ const TopNavbar = () => {
             <MenuList>
               <MenuItem>View Profile</MenuItem>
               <MenuItem>Settings</MenuItem>
+              <MenuDivider />
               <MenuItem>Logout</MenuItem>
             </MenuList>
           </Menu>
@@ -118,6 +122,26 @@ const TopNavbar = () => {
           </ModalBody>
         </ModalContent>
       </Modal>
+
+      <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
+        <DrawerOverlay>
+          <DrawerContent>
+            <DrawerHeader>ShiShiKan</DrawerHeader>
+
+            <DrawerBody>
+              <Button variant="ghost" w="100%" justifyContent="start">
+                Goes somewhere
+              </Button>
+            </DrawerBody>
+
+            <DrawerFooter>
+              <Button variant="outline" mr={3} onClick={onClose}>
+                Close
+              </Button>
+            </DrawerFooter>
+          </DrawerContent>
+        </DrawerOverlay>
+      </Drawer>
     </Flex>
   );
 };
