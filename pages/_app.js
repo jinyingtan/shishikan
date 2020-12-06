@@ -1,11 +1,11 @@
-import { ThemeProvider, CSSReset, ColorModeProvider } from '@chakra-ui/react';
-import theme from '../styles/theme';
+import { ChakraProvider, CSSReset, ColorModeProvider, extendTheme } from '@chakra-ui/react';
+import { theme } from '@chakra-ui/react';
 import { AuthModalProvider } from '@components/auth/authModal';
 
 function MyApp({ Component, pageProps }) {
   return (
     <AuthModalProvider>
-      <ThemeProvider theme={theme}>
+      <ChakraProvider theme={extendTheme(theme)}>
         <ColorModeProvider
           options={{
             useSystemColorMode: false,
@@ -15,7 +15,7 @@ function MyApp({ Component, pageProps }) {
           <CSSReset />
           <Component {...pageProps} />
         </ColorModeProvider>
-      </ThemeProvider>
+      </ChakraProvider>
     </AuthModalProvider>
   );
 }
