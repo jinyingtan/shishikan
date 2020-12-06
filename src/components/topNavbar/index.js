@@ -151,6 +151,10 @@ const TopNavbar = () => {
               <Button variant="ghost" w="100%" justifyContent="start">
                 Goes somewhere
               </Button>
+              <Divider />
+              <Button variant="ghost" w="100%" justifyContent="start" onClick={logout}>
+                Logout
+              </Button>
             </DrawerBody>
 
             <DrawerFooter>
