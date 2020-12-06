@@ -5,7 +5,7 @@ export const verifyToken = async (ctx) => {
   const cookies = nookies.get(ctx);
   const token = await admin.auth().verifyIdToken(cookies.token);
   return token;
-}
+};
 
 export const getUserFromToken = (token) => {
   const user = {
@@ -16,4 +16,4 @@ export const getUserFromToken = (token) => {
     isEmailVerified: token.email_verified,
   };
   return user;
-}
+};
