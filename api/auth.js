@@ -4,7 +4,7 @@ import { ALL_TEXT } from '@constants/firebase';
 const usersCollection = db.collection('users');
 
 class AuthAPI {
-  async registerUserWithGoogle() {
+  registerUserWithGoogle = async () => {
     await this._googleAuth();
     const token = await firebaseAuth.currentUser.getIdToken();
     const userProfile = firebaseAuth.currentUser;
@@ -14,16 +14,16 @@ class AuthAPI {
     return [token, userProfile, userDoc];
   }
 
-  async logout() {
+  logout = async () => {
     await firebaseAuth.signOut();
   }
 
-  async _googleAuth() {
+  _googleAuth = async () => {
     const provider = new firebase.auth.GoogleAuthProvider();
     return await firebaseAuth.signInWithPopup(provider);
   }
 
-  async _createUser(userInfo) {
+  _createUser = async (userInfo) => {
     let name = userInfo.displayName;
     let profileImageUrl = userInfo.photoURL;
     if (userInfo.displayName == null) {
