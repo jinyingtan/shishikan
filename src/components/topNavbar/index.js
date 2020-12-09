@@ -43,7 +43,7 @@ const TopNavbar = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const registerWithGoogle = () => {
-    api.auth.registerUserWithGoogle().then((response) => {
+    api.auth.authenticateUserWithGoogle().then((response) => {
       console.log('registered', response);
       authModal.register.onClose();
     });
