@@ -26,7 +26,7 @@ class TagsAPI {
   };
 
   getByName = async (name) => {
-    const snapshot = tagsCollection.where('name', '==', name).get();
+    const snapshot = await tagsCollection.where('name', '==', name).get();
 
     if (snapshot.empty) {
       return null;
