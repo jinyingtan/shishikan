@@ -97,7 +97,11 @@ export const uploadImagesWithCoverImage = async (coverImage, images, imageNames,
     return null;
   }
   const coverImageUrl = imageUrls.splice(coverImageIndex, 1);
-  imageUrls.unshift(coverImageUrl); // Shift cover image to the front;
+  if (coverImageUrl.length < 1) {
+    // TODO: Find a better way
+    return null;
+  }
+  imageUrls.unshift(coverImageUrl[0]); // Shift cover image to the front;
 
   return imageUrls;
 };

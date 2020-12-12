@@ -149,7 +149,7 @@ class ListsAPI {
       if (imageUrls === null) {
         throw new ListsError('upload-image-failed', 'failed to upload images');
       }
-      console.log(imageUrls);
+
       data['imageUrls'] = imageUrls;
       data['coverImageUrl'] = imageUrls[0];
     }
