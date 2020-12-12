@@ -111,10 +111,10 @@ class ListsAPI {
 
     const listSnapshot = await this.getList(listId);
     if (!listSnapshot.exists) {
-      throw new ListError('invalid-list', 'list does not exist');
+      throw new ListsError('invalid-list', 'list does not exist');
     }
     if (listSnapshot.data().user.id !== userId) {
-      throw new ListError('invalid-list', 'list does not belong to the user');
+      throw new ListsError('invalid-list', 'list does not belong to the user');
     }
 
     const [categoryData, tagData, addressData] = await Promise.all([
