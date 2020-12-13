@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { AREA_CODE } from '@constants/areaCode';
 import { GEO_LOCATION_URL } from '@constants/thirdPartyAPIUrl';
+import LocationsError from '../error/locationsError';
 
 export const getLocationInfos = async (locations) => {
   const locationInfos = [];
@@ -42,7 +43,7 @@ export const getLocationInfos = async (locations) => {
       locationInfos.push(locationInfo);
     }
   } catch (error) {
-    // TODO: Throw Error
+    throw new LocationsError('invalid-location', 'failed to fetch info for some locations');
   }
 
   return locationInfos;

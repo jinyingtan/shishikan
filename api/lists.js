@@ -28,9 +28,6 @@ class ListsAPI {
     }
 
     const userData = await getSharedUserData();
-    if (userData === null) {
-      throw new ListsError('invalid-user', 'user data does not exists');
-    }
 
     const newList = listsCollection.doc();
     const timeNow = firebase.firestore.FieldValue.serverTimestamp();
@@ -87,9 +84,6 @@ class ListsAPI {
     }
 
     const userData = await getSharedUserData();
-    if (userData === null) {
-      throw new ListsError('invalid-user', 'user data does not exists');
-    }
 
     const listSnapshot = await this.getList(listId);
     if (!listSnapshot.exists) {
@@ -166,9 +160,6 @@ class ListsAPI {
     }
 
     const userData = await getSharedUserData();
-    if (userData === null) {
-      throw new ListsError('invalid-user', 'user data does not exists');
-    }
 
     const foodRef = listsCollection.doc(listId).collection('food').doc(foodId);
     const timeNow = firebase.firestore.FieldValue.serverTimestamp();

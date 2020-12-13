@@ -1,17 +1,16 @@
 import { firebaseAuth } from '@utils/firebase';
 import api from '@api';
+import UsersError from '../error/usersError';
 
 export const getSharedUserData = async () => {
   const currentUser = firebaseAuth.currentUser;
   if (currentUser === null) {
-    // TODO: Find a better way
-    return null;
+    throw new UsersError('invalid-user', 'current user is null');
   }
   const userId = currentUser.uid;
   const userSnapshot = await api.users.get(userId);
   if (!userSnapshot.exists) {
-    // TODO: Find a better way
-    return null;
+    throw new UsersError('invalid-user', 'user data does not exist');
   }
   const userInfo = userSnapshot.data();
   const userData = {
