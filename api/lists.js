@@ -83,9 +83,7 @@ class ListsAPI {
       }
     }
 
-    const userData = await getSharedUserData();
-
-    const listSnapshot = await this.getList(listId);
+    const [userData, listSnapshot] = await Promise.all([getSharedUserData(), this.getList(listId)]);
     if (!listSnapshot.exists) {
       throw new ListsError('invalid-list', 'list does not exist');
     }
