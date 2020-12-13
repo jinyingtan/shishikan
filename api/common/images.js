@@ -1,6 +1,7 @@
 import * as path from 'path';
 import { firebaseStorage } from '@utils/firebase';
-import { ALL_TEXT } from '@constants/firebase';
+import { ALL_TEXT, ALL } from '@constants/firebase';
+import ImagesError from '../error/imagesError';
 
 const getPath = (path) => {
   let finalPath = path;
@@ -15,6 +16,10 @@ export const isValidImageExtensions = (images) => {
   const VALID_EXTENSIONS = ['.jpg', '.jpeg', '.png'];
 
   for (const image of images) {
+    if (typeof image === 'string') {
+      continue;
+    }
+
     if (image === null) {
       return [true, 'invalid-image', 'one or more of the images provided are null'];
     }
@@ -37,13 +42,21 @@ export const isValidCoverImageAndImages = (coverImage, images) => {
   }
 
   for (const image of images) {
+    if (typeof image === 'string') {
+      continue;
+    }
+
     if (image === null) {
       return [true, 'invalid-image', 'one or more of the images provided are null'];
     }
   }
 
   const isCoverImageIncluded = images.find((image) => {
-    return image != null && coverImage != null && coverImage.name == image.name;
+    if (typeof coverImage === 'string') {
+      return typeof image === 'string' && coverImage === image;
+    } else {
+      return image != null && coverImage != null && coverImage.name === image.name;
+    }
   });
   if (!isCoverImageIncluded) {
     return [true, 'invalid-cover-image', 'cover image is not provided within the list of images'];
@@ -71,8 +84,7 @@ export const uploadImage = async (image, imageName, pathToUpload) => {
 
 export const uploadImages = async (images, imageNames, pathToUpload) => {
   if (images.length !== imageNames.length) {
-    // TODO: Find a better way
-    return null;
+    throw new ImagesError('invalid-image-info', 'image names should the same length as the images provided');
   }
 
   const imagePromises = [];
@@ -84,24 +96,126 @@ export const uploadImages = async (images, imageNames, pathToUpload) => {
   return Promise.all(imagePromises);
 };
 
-export const uploadImagesWithCoverImage = async (coverImage, images, imageNames, pathToUpload) => {
+export const uploadNewImagesWithCoverImage = async (coverImage, images, imageNames, pathToUpload) => {
+  if (images.length !== imageNames.length) {
+    throw new ImagesError('invalid-image-info', 'image names should the same length as the images provided');
+  }
   const coverImageIndex = images.findIndex((image) => coverImage !== null && image.name === coverImage.name);
   if (coverImageIndex === -1) {
-    // TODO: Find a better way
-    return null;
+    throw new ImagesError('invalid-cover-image', 'cover image is not included in the list of images');
   }
 
   const imageUrls = await uploadImages(images, imageNames, pathToUpload);
-  if (imageUrls === null) {
-    // TODO: Find a better way
-    return null;
-  }
   const coverImageUrl = imageUrls.splice(coverImageIndex, 1);
   if (coverImageUrl.length < 1) {
-    // TODO: Find a better way
-    return null;
+    throw new ImagesError('invalid-cover-image', 'cover image could not be found in the list of uploaded images');
   }
   imageUrls.unshift(coverImageUrl[0]); // Shift cover image to the front;
 
   return imageUrls;
+};
+
+export const uploadUpdatedImagesWithCoverImage = async (coverImage, images, imageInfos, pathToUpload) => {
+  if (images.length !== imageInfos.length) {
+    throw new ImagesError('invalid-image-info', 'image info should the same length as the images provided');
+  }
+  const coverImageIndex = images.findIndex((image) => {
+    if (typeof coverImage === 'string') {
+      return typeof image === 'string' && image === coverImage;
+    } else {
+      return coverImage !== null && typeof image !== 'string' && image.name === coverImage.name;
+    }
+  });
+  if (coverImageIndex === -1) {
+    throw new ImagesError('invalid-cover-image', 'cover image is not included in the list of images');
+  }
+
+  const unusedImageNames = await getUnusedImageNames(images, pathToUpload);
+  await deleteImages(unusedImageNames, pathToUpload);
+
+  const imageUrlPromises = [];
+  for (let i = 0; i < images.length; i++) {
+    if (typeof images[i] === 'string') {
+      // Existing Image
+      imageUrlPromises.push(Promise.resolve(imageInfos[i]));
+    } else {
+      // New Image
+      imageUrlPromises.push(uploadImage(images[i], imageInfos[i], pathToUpload));
+    }
+  }
+  const imageUrls = await Promise.all(imageUrlPromises);
+  const isSomeImageUrlsInvalid = imageUrls.some((imageUrl) => imageUrl === null);
+  if (isSomeImageUrlsInvalid) {
+    throw new ImagesError('invalid-images', 'failed to upload some of the images');
+  }
+
+  const coverImageUrl = imageUrls.splice(coverImageIndex, 1);
+  if (coverImageUrl.length < 1) {
+    throw new ImagesError('invalid-cover-image', 'cover image could not be found in the list of uploaded images');
+  }
+  imageUrls.unshift(coverImageUrl[0]); // Shift cover image to the front;
+
+  return imageUrls;
+};
+
+export const deleteImage = async (imageNameWithExtension, pathToImage) => {
+  const finalPathToImage = getPath(pathToImage);
+
+  const storageRef = firebaseStorage.ref();
+  const imageRef = storageRef.child(`${finalPathToImage}${imageNameWithExtension}`);
+  imageRef.delete();
+};
+
+export const deleteImages = async (imageNamesWithExtension, pathToImages) => {
+  const promises = imageNamesWithExtension.map((imageNameWithExtension) => {
+    return deleteImage(imageNameWithExtension, pathToImages);
+  });
+
+  await Promise.all(promises);
+};
+
+export const getUnusedImageNames = async (imagesToUpload, bucketPath) => {
+  const storageRef = firebaseStorage.ref();
+  const imageRefs = storageRef.child(bucketPath);
+
+  const storageImageRefs = await imageRefs.listAll();
+  const storageImageUrlPromises = storageImageRefs.items.map((imageRef) => {
+    return imageRef.getDownloadURL();
+  });
+  const storageImageUrls = await Promise.all(storageImageUrlPromises);
+
+  // Get only raw image name to url
+  const storageImageNameAndUrls = [];
+  for (let i = 0; i < storageImageUrls.length; i++) {
+    const containsVariation = ALL.some((variation) => storageImageRefs.items[i].name.includes(variation));
+    if (containsVariation) {
+      continue;
+    }
+
+    const imageNameAndUrl = { name: storageImageRefs.items[i].name, url: storageImageUrls[i] };
+    storageImageNameAndUrls.push(imageNameAndUrl);
+  }
+
+  const existingImageInStorageIndexes = [];
+  for (const imageToUpload of imagesToUpload) {
+    if (typeof imageToUpload === 'string') {
+      const existingImageInStorageIndex = storageImageNameAndUrls.findIndex((storageImageNameAndUrl) => {
+        return storageImageNameAndUrl.url === imageToUpload;
+      });
+      if (existingImageInStorageIndex === -1) {
+        throw new ImagesError('invalid-existing-images', 'some of the existing image url does not exist');
+      }
+
+      existingImageInStorageIndexes.push(existingImageInStorageIndex);
+    }
+  }
+
+  const unusedImageNames = [];
+  for (let i = 0; i < storageImageNameAndUrls.length; i++) {
+    if (!existingImageInStorageIndexes.includes(i)) {
+      unusedImageNames.push(storageImageNameAndUrls[i].name);
+    }
+  }
+
+  return unusedImageNames;
 };
