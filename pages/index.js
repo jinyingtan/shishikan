@@ -1,6 +1,7 @@
 import TopNavbar from '@components/topNavbar';
 import { AuthProvider } from '@components/auth';
 import { verifyToken, getUserFromToken } from '@utils/auth';
+import BottomNavbar from '@components/bottomNavbar';
 
 export async function getServerSideProps(ctx) {
   try {
@@ -25,6 +26,7 @@ export default function Home({ user }) {
   return (
     <AuthProvider user={user}>
       <TopNavbar />
+      <BottomNavbar />
     </AuthProvider>
   );
 }
