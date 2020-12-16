@@ -88,7 +88,7 @@ const TopNavbar = () => {
             <Button variant="ghost">Nearby</Button>
             <Button variant="ghost">MyLists</Button>
           </HStack>
-          <Divider orientation="vertical" />{' '}
+          <Divider orientation="vertical" display={{ base: 'none', md: 'flex' }}/>
         </>
       ) : null}
 
