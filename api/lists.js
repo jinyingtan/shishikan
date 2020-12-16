@@ -1,0 +1,217 @@
+import { v4 as uuidv4 } from 'uuid';
+import { db, firebase } from '@utils/firebase';
+import { LIST_VISIBILITY } from '@constants/lists';
+import { FOOD_VERDICT } from '@constants/food';
+import { isValidListVisibility } from '@constants/lists';
+import { isValidFoodVerdict } from '@constants/food';
+import { getSharedUserData } from './common/users';
+import { getSharedCategoryInfos } from './common/categories';
+import { getOrCreateSharedTagInfos } from './common/tags';
+import { getLocationInfos } from './common/locations';
+import {
+  isValidCoverImageAndImages,
+  uploadImage,
+  uploadNewImagesWithCoverImage,
+  uploadUpdatedImagesWithCoverImage,
+} from './common/images';
+import ListsError from './error/listsError';
+
+const listsCollection = db.collection('lists');
+
+class ListsAPI {
+  createList = async (name, description = '', image = null, visibility = LIST_VISIBILITY.PUBLIC) => {
+    if (!isValidListVisibility(visibility)) {
+      throw new ListsError(
+        'invalid-visibility-value',
+        `visibility only takes values of ${Object.values(LIST_VISIBILITY)}`
+      );
+    }
+
+    const userData = await getSharedUserData();
+
+    const newList = listsCollection.doc();
+    const timeNow = firebase.firestore.FieldValue.serverTimestamp();
+    const data = {
+      id: newList.id,
+      name,
+      description,
+      visibility,
+      user: userData,
+      createdAt: timeNow,
+      updatedAt: timeNow,
+    };
+
+    if (image !== null) {
+      const uploadPath = `lists/${newList.id}/`;
+      const imageName = `${newList.id}_${Date.now()}_${uuidv4()}`;
+      const imageUrl = await uploadImage(image, imageName, uploadPath);
+      data['imageUrl'] = imageUrl;
+    }
+
+    await newList.set(data);
+    return newList.get();
+  };
+
+  getList = async (id) => {
+    return listsCollection.doc(id).get();
+  };
+
+  addFood = async (
+    listId,
+    name,
+    description,
+    categoryIds,
+    tagNames,
+    address,
+    price = -1,
+    verdict = FOOD_VERDICT.TO_TRY,
+    coverImage = null,
+    images = []
+  ) => {
+    if (!isValidFoodVerdict(verdict)) {
+      throw new ListsError('invalid-verdict', `verdict field only takes values of ${Object.values(FOOD_VERDICT)}`);
+    }
+    const hasImages = coverImage !== null && images.length > 0;
+    if (hasImages) {
+      const [
+        hasValidCoverImageAndImagesError,
+        coverImageAndImagesErrorCode,
+        coverImageAndImagesErrorMessage,
+      ] = isValidCoverImageAndImages(coverImage, images);
+      if (hasValidCoverImageAndImagesError) {
+        throw new ListsError(coverImageAndImagesErrorCode, coverImageAndImagesErrorMessage);
+      }
+    }
+
+    const [userData, listSnapshot] = await Promise.all([getSharedUserData(), this.getList(listId)]);
+    if (!listSnapshot.exists) {
+      throw new ListsError('invalid-list', 'list does not exist');
+    }
+    if (listSnapshot.data().user.id !== userData.id) {
+      throw new ListsError('invalid-list', 'list does not belong to the user');
+    }
+
+    const [categoryData, tagData, addressData] = await Promise.all([
+      getSharedCategoryInfos(categoryIds),
+      getOrCreateSharedTagInfos(tagNames),
+      getLocationInfos([address]),
+    ]);
+
+    const newFoodItem = listsCollection.doc(listId).collection('food').doc();
+    const timeNow = firebase.firestore.FieldValue.serverTimestamp();
+    const data = {
+      id: newFoodItem.id,
+      name,
+      description,
+      categories: categoryData,
+      tags: tagData,
+      verdict,
+      address: addressData[0],
+      user: userData,
+      createdAt: timeNow,
+      updatedAt: timeNow,
+    };
+    if (price !== -1) {
+      data['price'] = price;
+    }
+
+    if (hasImages) {
+      const uploadPath = `lists/${listId}/food/${newFoodItem.id}/`;
+      const imageNames = [];
+      for (const image of images) {
+        imageNames.push(`${newFoodItem.id}_${Date.now()}_${uuidv4()}`);
+      }
+      const imageUrls = await uploadNewImagesWithCoverImage(coverImage, images, imageNames, uploadPath);
+      if (imageUrls === null) {
+        throw new ListsError('upload-image-failed', 'failed to upload images');
+      }
+
+      data['imageUrls'] = imageUrls;
+      data['coverImageUrl'] = imageUrls[0];
+    }
+
+    await newFoodItem.set(data);
+    return newFoodItem.get();
+  };
+
+  getFood = async (listId, foodId) => {
+    return listsCollection.doc(listId).collection('food').doc(foodId).get();
+  };
+
+  addReview = async (listId, foodId, description, verdict, price = -1, coverImage = null, images = []) => {
+    if (!isValidFoodVerdict(verdict)) {
+      throw new ListsError('invalid-verdict', `verdict field only takes values of ${Object.values(FOOD_VERDICT)}`);
+    }
+    if (verdict === FOOD_VERDICT.TO_TRY) {
+      throw new ListsError('invalid-verdict', `review verdict cannoot be FOOD_VERDICT.TO_TRY`);
+    }
+    const hasImages = coverImage !== null && images.length > 0;
+    if (hasImages) {
+      const [
+        hasValidCoverImageAndImagesError,
+        coverImageAndImagesErrorCode,
+        coverImageAndImagesErrorMessage,
+      ] = isValidCoverImageAndImages(coverImage, images);
+      if (hasValidCoverImageAndImagesError) {
+        throw new ListsError(coverImageAndImagesErrorCode, coverImageAndImagesErrorMessage);
+      }
+    }
+
+    const userData = await getSharedUserData();
+
+    const foodRef = listsCollection.doc(listId).collection('food').doc(foodId);
+    const timeNow = firebase.firestore.FieldValue.serverTimestamp();
+    const foodData = {
+      verdict,
+      updatedAt: timeNow,
+    };
+    if (price !== -1) {
+      foodData['price'] = price;
+    }
+    if (hasImages) {
+      const foodSnapshot = await this.getFood(listId, foodId);
+      if (!foodSnapshot.exists) {
+        throw new ListError('invalid-food', 'food data does not exists');
+      }
+      const currentFoodImages = foodSnapshot.data().imageUrls;
+
+      const uploadPath = `lists/${listId}/food/${foodId}/`;
+      const imageInfos = [];
+      for (const image of images) {
+        if (typeof image === 'string') {
+          // Existing image
+          const imageUrlMapping = currentFoodImages.find((currentFoodImage) => currentFoodImage.raw === image);
+          if (imageUrlMapping === undefined) {
+            throw new ListsError('invalid-image', 'existing image does not exists');
+          }
+          imageInfos.push(imageUrlMapping);
+        } else {
+          // New image
+          imageInfos.push(`${foodId}_${Date.now()}_${uuidv4()}`);
+        }
+      }
+      const imageUrls = await uploadUpdatedImagesWithCoverImage(coverImage, images, imageInfos, uploadPath);
+      if (imageUrls === null) {
+        throw new ListsError('upload-image-failed', 'failed to upload images');
+      }
+
+      foodData['imageUrls'] = imageUrls;
+      foodData['coverImageUrl'] = imageUrls[0];
+    }
+
+    const newReview = listsCollection.doc(listId).collection('food').doc(foodId).collection('reviews').doc();
+    const reviewData = {
+      id: newReview.id,
+      description,
+      verdict,
+      user: userData,
+      createdAt: timeNow,
+      updatedAt: timeNow,
+    };
+
+    await Promise.all([foodRef.update(foodData), newReview.set(reviewData)]);
+    return newReview.get();
+  };
+}
+
+export default ListsAPI;
