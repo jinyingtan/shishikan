@@ -36,6 +36,7 @@ import { useAuthModal } from '@components/auth/authModal';
 import { FcGoogle } from 'react-icons/fc';
 import api from '@api';
 import nookies from 'nookies';
+import { useRouter } from 'next/router';
 
 const TopNavbar = () => {
   const { colorMode } = useColorMode();
@@ -43,6 +44,7 @@ const TopNavbar = () => {
   const auth = useAuth();
   const authModal = useAuthModal();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const router = useRouter();
 
   const registerWithGoogle = () => {
     api.auth.authenticateUserWithGoogle().then((response) => {
@@ -65,6 +67,10 @@ const TopNavbar = () => {
       nookies.set(null, 'token', '', {});
     });
   };
+
+  const routeToAddPage = () => {
+    router.push('/add');
+  }
 
   return (
     <Flex
@@ -105,7 +111,7 @@ const TopNavbar = () => {
 
       {auth.user ? (
         <HStack display={{ base: 'none', md: 'flex' }} pl="5px">
-          <Button>Add food</Button>
+          <Button onClick={routeToAddPage}>Add food</Button>
           <Menu isLazy>
             <MenuButton as={Avatar} size="sm" name={auth.user.displayName} src={auth.user.photoURL} />
             <MenuList>
