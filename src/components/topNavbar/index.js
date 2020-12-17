@@ -52,7 +52,7 @@ const TopNavbar = () => {
   const loginWithGoogle = () => {
     api.auth.authenticateUserWithGoogle().then((response) => {
       console.log('login', response);
-      authModal.lgoin.onClose();
+      authModal.login.onClose();
     });
   };
 
@@ -159,9 +159,21 @@ const TopNavbar = () => {
                 Goes somewhere
               </Button>
               <Divider />
-              <Button variant="ghost" w="100%" justifyContent="start" onClick={logout}>
-                Logout
-              </Button>
+
+              {auth.user ? (
+                <Button variant="ghost" w="100%" justifyContent="start" onClick={logout}>
+                  Logout
+                </Button>
+              ) : (
+                <HStack display={"flex"}>
+                  <Button variant="ghost" onClick={authModal.login.onOpen}>
+                    Login
+                  </Button>
+                  <Button colorScheme="green" onClick={authModal.register.onOpen}>
+                    Join free
+                  </Button>
+                </HStack>
+              )}
             </DrawerBody>
 
             <DrawerFooter>

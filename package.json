@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "prettier --check '**/*.js'",
-    "format": "prettier --write '**/*.js'"
+    "format": "prettier --write '**/*.js'",
+    "dev-local": "next --hostname 0.0.0.0"
   },
   "dependencies": {
     "@chakra-ui/icons": "^1.0.1",
