@@ -148,9 +148,9 @@ class ListsAPI {
   };
 
   getFoods = async (listId) => {
-    const foods = await listsCollection.doc(listId).collection('food').orderBy("createdAt").get();
+    const foods = await listsCollection.doc(listId).collection('food').orderBy('createdAt').get();
     return foods.docs;
-  }
+  };
 
   addReview = async (listId, foodId, description, verdict, price = -1, coverImage = null, images = []) => {
     if (!isValidFoodVerdict(verdict)) {

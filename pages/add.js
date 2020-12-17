@@ -13,12 +13,12 @@ export async function getServerSideProps(ctx) {
       ctx.res.end();
     }
     const user = getUserFromToken(token);
-   
+
     const listId = ctx.query.listId;
     return {
       props: {
         user: user || null,
-        listId: listId || null
+        listId: listId || null,
       },
     };
   } catch (error) {

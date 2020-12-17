@@ -70,7 +70,7 @@ const TopNavbar = () => {
 
   const routeToAddPage = () => {
     router.push('/add');
-  }
+  };
 
   return (
     <Flex
