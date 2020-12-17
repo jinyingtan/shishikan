@@ -13,7 +13,6 @@ export async function getServerSideProps(ctx) {
       ctx.res.end();
     }
     const user = getUserFromToken(token);
-   
 
     return {
       props: {
