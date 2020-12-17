@@ -72,6 +72,10 @@ const TopNavbar = () => {
     router.push('/add');
   };
 
+  const routeToListsPage = () => {
+    router.push('/lists');
+  };
+
   return (
     <Flex
       alignItems="center"
@@ -103,7 +107,9 @@ const TopNavbar = () => {
         <>
           <HStack display={{ base: 'none', md: 'flex' }} pl="5px">
             <Button variant="ghost">Nearby</Button>
-            <Button variant="ghost">MyLists</Button>
+            <Button variant="ghost" onClick={routeToListsPage}>
+              MyLists
+            </Button>
           </HStack>
           <Divider orientation="vertical" display={{ base: 'none', md: 'flex' }} />
         </>
