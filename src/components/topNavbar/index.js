@@ -27,6 +27,7 @@ import {
   DrawerOverlay,
   DrawerContent,
   Divider,
+  VStack,
 } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 import { MdMenu } from 'react-icons/md';
@@ -158,25 +159,27 @@ const TopNavbar = () => {
             <DrawerHeader>ShiShiKan</DrawerHeader>
 
             <DrawerBody>
-              <Button variant="ghost" w="100%" justifyContent="start">
-                Goes somewhere
-              </Button>
-              <Divider />
-
-              {auth.user ? (
-                <Button variant="ghost" w="100%" justifyContent="start" onClick={logout}>
-                  Logout
+              <VStack>
+                <Button variant="ghost" w="100%" justifyContent="start">
+                  Goes somewhere
                 </Button>
-              ) : (
-                <HStack display={'flex'}>
-                  <Button variant="ghost" onClick={authModal.login.onOpen}>
-                    Login
+                <Divider />
+                {auth.user ? (
+                  <Button variant="ghost" w="100%" justifyContent="start" onClick={logout}>
+                    Logout
                   </Button>
-                  <Button colorScheme="green" onClick={authModal.register.onOpen}>
-                    Join free
-                  </Button>
-                </HStack>
-              )}
+                ) : (
+                  <>
+                    <Button variant="ghost" w="100%" justifyContent="start" onClick={authModal.login.onOpen}>
+                      Login
+                    </Button>
+                    <Button colorScheme="green" w="100%" justifyContent="start" onClick={authModal.register.onOpen}>
+                      Join free
+                    </Button>
+                  </>
+                )}
+                ƒ
+              </VStack>
             </DrawerBody>
 
             <DrawerFooter>
