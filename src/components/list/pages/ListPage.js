@@ -1,9 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Stack, HStack, Heading, Button, Box, Tag, TagLabel, TagLeftIcon, Text } from '@chakra-ui/react';
 import { MaxWidthContainer } from '@components/containers';
 import { LockIcon, UnlockIcon, AddIcon } from '@chakra-ui/icons';
-import api from '@api';
-import FoodCard from '@components/cards/FoodCard';
 import { InstantSearch, Configure, connectInfiniteHits } from 'react-instantsearch-dom';
 import { searchClient } from '@utils/algolia';
 import FoodItemHitsWrapper from '../modules/FoodItemHitsWrapper';
