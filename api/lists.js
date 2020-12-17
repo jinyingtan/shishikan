@@ -148,7 +148,7 @@ class ListsAPI {
   };
 
   getFoods = async (listId) => {
-    const foods = await listsCollection.doc(listId).collection('food').get();
+    const foods = await listsCollection.doc(listId).collection('food').orderBy("createdAt").get();
     return foods.docs;
   }
 

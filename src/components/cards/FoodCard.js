@@ -31,7 +31,6 @@ const FoodCard = ({
   distance,
   onUserClick,
 }) => {
-
   const [imgLoaded, setImageLoaded] = useState(false);
 
   return (
@@ -48,7 +47,14 @@ const FoodCard = ({
     >
       {imageUrl ? (
         <Skeleton isLoaded={imgLoaded}>
-          <Image src={imageUrl} alt={imageAlt} height="200px" w="100%" objectFit="cover" onLoad={() => setImageLoaded(true)}/>
+          <Image
+            src={imageUrl}
+            alt={imageAlt}
+            height="200px"
+            w="100%"
+            objectFit="cover"
+            onLoad={() => setImageLoaded(true)}
+          />
         </Skeleton>
       ) : (
         <Box backgroundColor="gray.100" height="52%"></Box>
