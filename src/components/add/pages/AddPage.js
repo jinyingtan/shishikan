@@ -22,16 +22,18 @@ import {
   Button,
   Box,
   useToast,
+  CircularProgress,
 } from '@chakra-ui/react';
 import { MaxWidthContainer } from '@components/containers';
 import GooglePlacesInput from '@components/input/GooglePlacesInput';
 import DragNDropInput from '@components/input/DragNDropInput';
 
-const AddPage = () => {
+const AddPage = ({ listId }) => {
   const router = useRouter();
   const [myLists, setMyLists] = useState([]);
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
 
   const validationSchema = Yup.object().shape({
     list: Yup.string().required('Required'),
@@ -93,6 +95,12 @@ const AddPage = () => {
     api.lists.getLists().then((docs) => {
       const myLists = docs.map((myListDoc) => myListDoc.data());
       setMyLists(myLists);
+      setPageLoading(false);
+      myLists.forEach((list) => {
+        if (listId === list.id) {
+          formik.setFieldValue('list', listId);
+        }
+      });
     });
 
     api.categories.getAll().then((docs) => {

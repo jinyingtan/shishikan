@@ -51,6 +51,7 @@ const FoodItemHitWrapper = ({ hits, hasPrevious, hasMore, refinePrevious, refine
         {hits.length > 0 &&
           hits.map((food) => (
             <FoodCard
+              key={`${food.name}-${food.user.name}`}
               imageUrl={food.coverImageUrl?.small || food.coverImageUrl?.raw}
               imageAlt="Food Image"
               title={food.name}

@@ -13,10 +13,12 @@ export async function getServerSideProps(ctx) {
       ctx.res.end();
     }
     const user = getUserFromToken(token);
-
+   
+    const listId = ctx.query.listId;
     return {
       props: {
         user: user || null,
+        listId: listId || null
       },
     };
   } catch (error) {
@@ -26,12 +28,11 @@ export async function getServerSideProps(ctx) {
   }
 }
 
-const Add = ({ user }) => {
+const Add = ({ user, listId }) => {
   return (
     <AuthProvider user={user}>
       <TopNavbar />
-      <AddPage />
-
+      <AddPage listId={listId} />
       <BottomNavbar />
     </AuthProvider>
   );
