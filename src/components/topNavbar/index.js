@@ -27,6 +27,7 @@ import {
   DrawerOverlay,
   DrawerContent,
   Divider,
+  VStack,
 } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 import { MdMenu } from 'react-icons/md';
@@ -34,6 +35,8 @@ import { useAuth } from '@components/auth';
 import { useAuthModal } from '@components/auth/authModal';
 import { FcGoogle } from 'react-icons/fc';
 import api from '@api';
+import nookies from 'nookies';
+import { useRouter } from 'next/router';
 
 const TopNavbar = () => {
   const { colorMode } = useColorMode();
@@ -41,6 +44,7 @@ const TopNavbar = () => {
   const auth = useAuth();
   const authModal = useAuthModal();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const router = useRouter();
 
   const registerWithGoogle = () => {
     api.auth.authenticateUserWithGoogle().then((response) => {
@@ -49,10 +53,23 @@ const TopNavbar = () => {
     });
   };
 
+  const loginWithGoogle = () => {
+    api.auth.authenticateUserWithGoogle().then((response) => {
+      console.log('login', response);
+      authModal.login.onClose();
+    });
+  };
+
   const logout = () => {
     api.auth.logout().then(() => {
       console.log('logout done');
+      nookies.destroy(null, 'token');
+      nookies.set(null, 'token', '', {});
     });
+  };
+
+  const routeToAddPage = () => {
+    router.push('/add');
   };
 
   return (
@@ -94,7 +111,7 @@ const TopNavbar = () => {
 
       {auth.user ? (
         <HStack display={{ base: 'none', md: 'flex' }} pl="5px">
-          <Button>Add food</Button>
+          <Button onClick={routeToAddPage}>Add food</Button>
           <Menu isLazy>
             <MenuButton as={Avatar} size="sm" name={auth.user.displayName} src={auth.user.photoURL} />
             <MenuList>
@@ -135,7 +152,7 @@ const TopNavbar = () => {
           <ModalHeader>Login</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Button w="100%" leftIcon={<FcGoogle />}>
+            <Button w="100%" leftIcon={<FcGoogle />} onClick={loginWithGoogle}>
               Login with Google
             </Button>
           </ModalBody>
@@ -148,13 +165,27 @@ const TopNavbar = () => {
             <DrawerHeader>ShiShiKan</DrawerHeader>
 
             <DrawerBody>
-              <Button variant="ghost" w="100%" justifyContent="start">
-                Goes somewhere
-              </Button>
-              <Divider />
-              <Button variant="ghost" w="100%" justifyContent="start" onClick={logout}>
-                Logout
-              </Button>
+              <VStack>
+                <Button variant="ghost" w="100%" justifyContent="start">
+                  Goes somewhere
+                </Button>
+                <Divider />
+                {auth.user ? (
+                  <Button variant="ghost" w="100%" justifyContent="start" onClick={logout}>
+                    Logout
+                  </Button>
+                ) : (
+                  <>
+                    <Button variant="ghost" w="100%" justifyContent="start" onClick={authModal.login.onOpen}>
+                      Login
+                    </Button>
+                    <Button colorScheme="green" w="100%" justifyContent="start" onClick={authModal.register.onOpen}>
+                      Join free
+                    </Button>
+                  </>
+                )}
+                ƒ
+              </VStack>
             </DrawerBody>
 
             <DrawerFooter>

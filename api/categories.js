@@ -7,6 +7,11 @@ class CategoriesAPI {
   get = async (id) => {
     return categoriesCollection.doc(id).get();
   };
+
+  getAll = async () => {
+    const categories = await categoriesCollection.get();
+    return categories.docs;
+  };
 }
 
 export default CategoriesAPI;

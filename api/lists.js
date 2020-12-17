@@ -1,10 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
-import { db, firebase } from '@utils/firebase';
+import { db, firebase, firebaseAuth } from '@utils/firebase';
 import { LIST_VISIBILITY } from '@constants/lists';
 import { FOOD_VERDICT } from '@constants/food';
 import { isValidListVisibility } from '@constants/lists';
 import { isValidFoodVerdict } from '@constants/food';
-import { getSharedUserData } from './common/users';
+import { getSharedUserData, getCurrentUser } from './common/users';
 import { getSharedCategoryInfos } from './common/categories';
 import { getOrCreateSharedTagInfos } from './common/tags';
 import { getLocationInfos } from './common/locations';
@@ -54,6 +54,15 @@ class ListsAPI {
 
   getList = async (id) => {
     return listsCollection.doc(id).get();
+  };
+
+  getLists = async (id) => {
+    const user = await getCurrentUser();
+    if (!user) {
+      throw new ListsError('invalid-user', `User does not exists`);
+    }
+    const lists = await listsCollection.where('user.id', '==', user.uid).get();
+    return lists.docs;
   };
 
   addFood = async (
@@ -136,6 +145,11 @@ class ListsAPI {
 
   getFood = async (listId, foodId) => {
     return listsCollection.doc(listId).collection('food').doc(foodId).get();
+  };
+
+  getFoods = async (listId) => {
+    const foods = await listsCollection.doc(listId).collection('food').orderBy('createdAt').get();
+    return foods.docs;
   };
 
   addReview = async (listId, foodId, description, verdict, price = -1, coverImage = null, images = []) => {

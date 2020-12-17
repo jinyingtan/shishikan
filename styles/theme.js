@@ -6,7 +6,6 @@ const theme = {
   ...chakraTheme,
   colors: {
     ...chakraTheme.colors,
-    black: '#16161D',
   },
   fonts,
   icons: {
