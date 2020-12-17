@@ -49,6 +49,13 @@ const TopNavbar = () => {
     });
   };
 
+  const loginWithGoogle = () => {
+    api.auth.authenticateUserWithGoogle().then((response) => {
+      console.log('login', response);
+      authModal.lgoin.onClose();
+    });
+  };
+
   const logout = () => {
     api.auth.logout().then(() => {
       console.log('logout done');
@@ -135,7 +142,7 @@ const TopNavbar = () => {
           <ModalHeader>Login</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Button w="100%" leftIcon={<FcGoogle />}>
+            <Button w="100%" leftIcon={<FcGoogle />} onClick={loginWithGoogle}>
               Login with Google
             </Button>
           </ModalBody>
