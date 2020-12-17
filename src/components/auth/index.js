@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, createContext } from 'react';
 import nookies from 'nookies';
-import { firebaseAuth } from '@utils/firebase';
+import { firebaseAuth, firebase } from '@utils/firebase';
 
 const AuthContext = createContext({
   user: null,
@@ -39,7 +39,7 @@ export function AuthProvider({ children, ...props }) {
   useEffect(() => {
     const handle = setInterval(async () => {
       console.log(`refreshing token...`);
-      const user = firebaseClient.auth().currentUser;
+      const user = firebase.auth().currentUser;
       if (user) await user.getIdToken(true);
     }, 45 * 60 * 1000);
     return () => clearInterval(handle);
