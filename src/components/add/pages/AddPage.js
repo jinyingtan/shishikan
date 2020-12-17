@@ -21,14 +21,17 @@ import {
   Heading,
   Button,
   Box,
+  useToast,
 } from '@chakra-ui/react';
 import { MaxWidthContainer } from '@components/containers';
 import GooglePlacesInput from '@components/input/GooglePlacesInput';
 import DragNDropInput from '@components/input/DragNDropInput';
 
 const AddPage = () => {
+  const router = useRouter();
   const [myLists, setMyLists] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const validationSchema = Yup.object().shape({
     list: Yup.string().required('Required'),
@@ -65,14 +68,25 @@ const AddPage = () => {
   });
 
   const handleCreateFood = (values) => {
-    console.log(values);
     const { list, name, description, categories, tagNames, address, price, verdict, images } = values;
     const categoryIds = categories.map((category) => category.value);
     const tags = tagNames.map((tag) => tag.value);
     const coverImage = images[0];
-    api.lists.addFood(list, name, description, categoryIds, tags, address, price, verdict,coverImage, images).then((snapshot) => {
-      console.log(snapshot.data());
-    });
+    setIsLoading(true);
+    api.lists
+      .addFood(list, name, description, categoryIds, tags, address, price, verdict, coverImage, images)
+      .then((snapshot) => {
+        router.push(`list/${list}`);
+      })
+      .catch((error) => {
+        toast({
+          title: 'Error',
+          description: error.message,
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+      });
   };
 
   useEffect(() => {
@@ -101,7 +115,12 @@ const AddPage = () => {
             error={formik.touched.images && formik.errors.images ? formik.errors.images : ''}
           />
 
-          <FormControl id="list" isRequired isInvalid={formik.errors.list && formik.touched.list}>
+          <FormControl
+            id="list"
+            isRequired
+            isInvalid={formik.errors.list && formik.touched.list}
+            isDisabled={formik.isSubmitting}
+          >
             <FormLabel htmlFor="list">For which List?</FormLabel>
             <Select placeholder="Select the list" {...formik.getFieldProps('list')}>
               {myLists.map((listItem) => (
@@ -111,19 +130,34 @@ const AddPage = () => {
             <FormErrorMessage>{formik.errors.list}</FormErrorMessage>
           </FormControl>
 
-          <FormControl id="name" isRequired isInvalid={formik.errors.name && formik.touched.name}>
+          <FormControl
+            id="name"
+            isRequired
+            isInvalid={formik.errors.name && formik.touched.name}
+            isDisabled={formik.isSubmitting}
+          >
             <FormLabel>Name</FormLabel>
             <Input id="name" placeholder="name" {...formik.getFieldProps('name')} />
             <FormErrorMessage>{formik.errors.name}</FormErrorMessage>
           </FormControl>
 
-          <FormControl id="description" isRequired isInvalid={formik.touched.description && formik.errors.description}>
+          <FormControl
+            id="description"
+            isRequired
+            isInvalid={formik.touched.description && formik.errors.description}
+            isDisabled={formik.isSubmitting}
+          >
             <FormLabel>Description</FormLabel>
             <Textarea id="description" placeholder="description" {...formik.getFieldProps('description')} />
             <FormErrorMessage>{formik.errors.description}</FormErrorMessage>
           </FormControl>
 
-          <FormControl id="category" isRequired isInvalid={formik.touched.categories && formik.errors.categories}>
+          <FormControl
+            id="category"
+            isRequired
+            isInvalid={formik.touched.categories && formik.errors.categories}
+            isDisabled={formik.isSubmitting}
+          >
             <FormLabel>Food Category</FormLabel>
             <ReactSelect
               isMulti
@@ -140,7 +174,13 @@ const AddPage = () => {
             <FormErrorMessage>{formik.errors.categories}</FormErrorMessage>
           </FormControl>
 
-          <FormControl as="fieldset" id="price" isRequired isInvalid={formik.touched.price && formik.errors.price}>
+          <FormControl
+            as="fieldset"
+            id="price"
+            isRequired
+            isInvalid={formik.touched.price && formik.errors.price}
+            isDisabled={formik.isSubmitting}
+          >
             <FormLabel as="legend">Affordability</FormLabel>
             <RadioGroup
               defaultValue="2"
@@ -166,6 +206,7 @@ const AddPage = () => {
             id="verdict"
             isRequired
             isInvalid={formik.touched.verdict && formik.errors.verdict}
+            isDisabled={formik.isSubmitting}
           >
             <FormLabel as="legend">Verdict</FormLabel>
             <RadioGroup
@@ -187,14 +228,14 @@ const AddPage = () => {
 
           <GooglePlacesInput
             label="Address"
-            disabled={false}
+            disabled={formik.isSubmitting}
             onChange={(address) => {
               formik.setFieldValue('address', address);
             }}
             required
           />
 
-          <FormControl as="fieldset" id="tags">
+          <FormControl as="fieldset" id="tags" isDisabled={formik.isSubmitting}>
             <FormLabel as="legend">Tags</FormLabel>
             <CreatableSelect
               isClearable
@@ -205,7 +246,9 @@ const AddPage = () => {
             />
           </FormControl>
 
-          <Button type="submit">Submit</Button>
+          <Button type="submit" isLoading={isLoading} isDisabled={formik.isSubmitting}>
+            Submit
+          </Button>
         </Stack>
       </Box>
     </MaxWidthContainer>
