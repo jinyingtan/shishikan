@@ -147,6 +147,11 @@ class ListsAPI {
     return listsCollection.doc(listId).collection('food').doc(foodId).get();
   };
 
+  getFoods = async (listId) => {
+    const foods = await listsCollection.doc(listId).collection('food').get();
+    return foods.docs;
+  }
+
   addReview = async (listId, foodId, description, verdict, price = -1, coverImage = null, images = []) => {
     if (!isValidFoodVerdict(verdict)) {
       throw new ListsError('invalid-verdict', `verdict field only takes values of ${Object.values(FOOD_VERDICT)}`);
