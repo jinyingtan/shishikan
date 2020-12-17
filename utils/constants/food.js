@@ -8,3 +8,9 @@ export const FOOD_VERDICT = {
 export const isValidFoodVerdict = (foodVerdict) => {
   return Object.values(FOOD_VERDICT).includes(foodVerdict);
 };
+
+export const FOOD_COST = {
+  Cheap: '1',
+  Affordable: '2',
+  Expensive: '3',
+};
