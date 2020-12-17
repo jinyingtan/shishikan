@@ -15,6 +15,7 @@ class AuthAPI {
       userDoc = await this._createUser(userProfile);
     } else {
       userDoc = await usersCollection.doc(userProfile.uid).get();
+      await this._updateLastLoginTime(userProfile.uid);
     }
 
     return [token, userProfile, userDoc];
@@ -78,6 +79,12 @@ class AuthAPI {
     }
 
     return uniqueUsername;
+  };
+
+  _updateLastLoginTime = async (id) => {
+    usersCollection.doc(id).update({
+      lastLoggedInAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
   };
 }
 
