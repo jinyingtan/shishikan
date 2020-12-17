@@ -34,6 +34,7 @@ import { useAuth } from '@components/auth';
 import { useAuthModal } from '@components/auth/authModal';
 import { FcGoogle } from 'react-icons/fc';
 import api from '@api';
+import nookies from 'nookies';
 
 const TopNavbar = () => {
   const { colorMode } = useColorMode();
@@ -59,6 +60,8 @@ const TopNavbar = () => {
   const logout = () => {
     api.auth.logout().then(() => {
       console.log('logout done');
+      nookies.destroy(null, 'token');
+      nookies.set(null, 'token', '', {});
     });
   };
 
@@ -165,7 +168,7 @@ const TopNavbar = () => {
                   Logout
                 </Button>
               ) : (
-                <HStack display={"flex"}>
+                <HStack display={'flex'}>
                   <Button variant="ghost" onClick={authModal.login.onOpen}>
                     Login
                   </Button>

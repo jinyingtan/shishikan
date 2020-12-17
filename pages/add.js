@@ -20,6 +20,8 @@ export async function getServerSideProps(ctx) {
       },
     };
   } catch (error) {
+    ctx.res.writeHead(302, { Location: '/' });
+    ctx.res.end();
     return { props: {} };
   }
 }
