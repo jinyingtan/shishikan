@@ -69,7 +69,8 @@ const AddPage = () => {
     const { list, name, description, categories, tagNames, address, price, verdict, images } = values;
     const categoryIds = categories.map((category) => category.value);
     const tags = tagNames.map((tag) => tag.value);
-    api.lists.addFood(list, name, description, categoryIds, tags, address, price, verdict, images).then((snapshot) => {
+    const coverImage = images[0];
+    api.lists.addFood(list, name, description, categoryIds, tags, address, price, verdict,coverImage, images).then((snapshot) => {
       console.log(snapshot.data());
     });
   };
