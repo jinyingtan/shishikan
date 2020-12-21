@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { SimpleGrid, Skeleton } from '@chakra-ui/react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { SimpleGrid, Skeleton, Box } from '@chakra-ui/react';
 import FoodCard from '@components/cards/FoodCard';
 
 /**
@@ -20,13 +20,13 @@ const FoodItemHitWrapper = ({ hits, hasPrevious, hasMore, refinePrevious, refine
 
   const sentinel = useRef(null);
 
-  const onSentinelIntersection = (entries) => {
+  const onSentinelIntersection = useCallback((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting && hasMore) {
-        refine();
+        refineNext();
       }
     });
-  };
+  });
 
   useEffect(() => {
     if (sentinel) {
@@ -37,7 +37,7 @@ const FoodItemHitWrapper = ({ hits, hasPrevious, hasMore, refinePrevious, refine
         observer.disconnect();
       };
     }
-  }, [sentinel]);
+  }, [sentinel, onSentinelIntersection]);
 
   return (
     <>
@@ -61,7 +61,7 @@ const FoodItemHitWrapper = ({ hits, hasPrevious, hasMore, refinePrevious, refine
               createdBy={{ name: food.user.name, profileImageUrl: food.user.profileImageUrl.raw }}
             />
           ))}
-        <li ref={sentinel} style={{ display: 'none' }} />
+        <li ref={sentinel} style={{ listStyleType: 'none' }} />
       </SimpleGrid>
     </>
   );

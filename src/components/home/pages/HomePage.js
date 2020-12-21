@@ -48,9 +48,9 @@ const HomePage = () => {
 
             <Configure
               filters={getFood(auth.user?.uid)}
-              hitsPerPage={8}
               aroundLatLng={latLngFilter}
               aroundRadius={10000}
+              hitsPerPage={8}
             />
 
             <FoodItemInfiniteHit minHitsPerPage={8} />
