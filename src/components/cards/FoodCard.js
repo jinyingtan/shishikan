@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Image, Box, Badge, Flex, IconButton, Avatar, Skeleton } from '@chakra-ui/react';
+import { Image as ChakraImage, Box, Badge, Flex, IconButton, Avatar, Skeleton } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
+import Image from 'next/image';
 
 const Cost = ({ cost }) => {
   let value = '';
@@ -47,14 +48,9 @@ const FoodCard = ({
     >
       {imageUrl ? (
         <Skeleton isLoaded={imgLoaded}>
-          <Image
-            src={imageUrl}
-            alt={imageAlt}
-            height="200px"
-            w="100%"
-            objectFit="cover"
-            onLoad={() => setImageLoaded(true)}
-          />
+          <Box w="100%" height="200px" position="relative">
+            <Image src={imageUrl} alt={imageAlt} layout="fill" objectFit="cover" onLoad={() => setImageLoaded(true)} />
+          </Box>
         </Skeleton>
       ) : (
         <Box backgroundColor="gray.100" height="52%"></Box>
