@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Flex, Heading, Stack, Checkbox } from '@chakra-ui/react';
 
-const Filter = ({ title, items, currentRefinement, refine, onRefine }) => {
+const Filter = ({ title, items, currentRefinement, refine }) => {
   return (
     <Stack as={Flex} direction="column" mt="3">
       <Heading as="h5" size="sm">
