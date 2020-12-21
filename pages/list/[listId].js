@@ -6,7 +6,7 @@ import TopNavbar from '@components/topNavbar';
 import api from '@api';
 import { deserializeFirestoreTimestampToUnixTimestamp } from '@utils/firebase/deserialiser';
 import Error from 'next/error';
-import ListPage from '@components/list/pages/listPage';
+import ListPage from '@components/list/pages/ListPage';
 
 export async function getServerSideProps(ctx) {
   try {

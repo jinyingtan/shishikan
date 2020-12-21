@@ -43,8 +43,8 @@ const FoodItemHitWrapper = ({ hits, hasPrevious, hasMore, refinePrevious, refine
     <>
       <SimpleGrid minChildWidth="300px" spacing={5}>
         {hits.length === 0 && loading
-          ? [0, 1, 2, 3, 4].map(() => {
-              return <Skeleton h="380px" w="320px" borderRadius="lg" />;
+          ? [0, 1, 2, 3, 4].map((value) => {
+              return <Skeleton h="380px" w="320px" borderRadius="lg" key={value} />;
             })
           : null}
 
