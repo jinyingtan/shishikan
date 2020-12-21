@@ -46,10 +46,10 @@ const HomePage = () => {
               filters={getFood(auth.user?.uid)}
               aroundLatLng={latLngFilter}
               aroundRadius={10000}
-              hitsPerPage={8}
+              hitsPerPage={21}
             />
 
-            <FoodItemInfiniteHit minHitsPerPage={8} />
+            <FoodItemInfiniteHit minHitsPerPage={21} />
           </Stack>
         </Box>
 

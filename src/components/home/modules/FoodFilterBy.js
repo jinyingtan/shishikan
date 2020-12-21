@@ -11,6 +11,7 @@ import {
   ModalBody,
   ModalCloseButton,
   useDisclosure,
+  useToast,
 } from '@chakra-ui/react';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { connectRefinementList, InstantSearch } from 'react-instantsearch-dom';
@@ -24,15 +25,28 @@ const CategoryFilterSettings = connectRefinementList(Filter);
 const FoodFilterBy = ({ onLatLngUpdated, searchState, onSearchStateChange }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isLocationLoading, setIsLocationLoading] = useState(false);
+  const toast = useToast();
 
   const onLocationClick = () => {
     if (navigator.geolocation) {
       setIsLocationLoading(true);
-      navigator.geolocation.getCurrentPosition((position) => {
-        setIsLocationLoading(false);
-        const latLng = `${position.coords.latitude},${position.coords.longitude}`;
-        onLatLngUpdated(latLng);
-      });
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setIsLocationLoading(false);
+          const latLng = `${position.coords.latitude},${position.coords.longitude}`;
+          onLatLngUpdated(latLng);
+        },
+        (err) => {
+          setIsLocationLoading(false);
+          toast({
+            title: 'Error',
+            description: `Location service not available, ${err}`,
+            status: 'error',
+            duration: 3000,
+            isClosable: true,
+          });
+        }
+      );
     }
   };
 
