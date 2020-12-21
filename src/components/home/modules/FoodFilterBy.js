@@ -13,20 +13,17 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { ChevronDownIcon } from '@chakra-ui/icons';
-import { connectRefinementList } from 'react-instantsearch-dom';
+import { connectRefinementList, InstantSearch } from 'react-instantsearch-dom';
 import Filter from './Filter';
+import { searchClient } from '@utils/algolia';
 
 const VerdictFilterSettings = connectRefinementList(Filter);
 const PriceFilterSettings = connectRefinementList(Filter);
 const CategoryFilterSettings = connectRefinementList(Filter);
 
-const VirtualRefinementList = connectRefinementList(() => null);
-
-const FoodFilterBy = ({ verdict, category, price, onLatLngUpdated }) => {
+const FoodFilterBy = ({ onLatLngUpdated, searchState, onSearchStateChange }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isLocationLoading, setIsLocationLoading] = useState(false);
-
-  useEffect(() => {}, []);
 
   const onLocationClick = () => {
     if (navigator.geolocation) {
@@ -69,19 +66,22 @@ const FoodFilterBy = ({ verdict, category, price, onLatLngUpdated }) => {
           <ModalHeader>Filter</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <VerdictFilterSettings attribute="verdict" title="Verdict" />
-            <PriceFilterSettings attribute="price" title="Price" />
-            <CategoryFilterSettings attribute="categories.name" title="Category" />
+            <InstantSearch
+              searchClient={searchClient}
+              indexName="food"
+              searchState={searchState}
+              onSearchStateChange={onSearchStateChange}
+            >
+              <VerdictFilterSettings attribute="verdict" title="Verdict" />
+              <PriceFilterSettings attribute="price" title="Price" />
+              <CategoryFilterSettings attribute="categories.name" title="Category" />
+            </InstantSearch>
           </ModalBody>
           <ModalFooter>
             <Button onClick={onClose}>Close</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
-
-      <VirtualRefinementList defaultRefinement={verdict} attribute="verdict" />
-      <VirtualRefinementList defaultRefinement={price} attribute="price" />
-      <VirtualRefinementList defaultRefinement={category} attribute="categories.name" />
     </Stack>
   );
 };
