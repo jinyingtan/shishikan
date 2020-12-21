@@ -3,5 +3,9 @@ export const getFoodFromList = (listId, userId) => {
 };
 
 export const getFood = (userId) => {
-  return `user.id:'${userId}'`;
+  if (userId) {
+    return `user.id:'${userId}'`;
+  } else {
+    return ``;
+  }
 };
