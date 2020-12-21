@@ -13,8 +13,12 @@ import {
   uploadImage,
   uploadNewImagesWithCoverImage,
   uploadUpdatedImagesWithCoverImage,
+  getUnusedImageNames,
+  deleteImages,
+  getEmptyImageMappings,
 } from './common/images';
 import ListsError from './error/listsError';
+import UsersError from './error/usersError';
 
 const listsCollection = db.collection('lists');
 
@@ -63,6 +67,41 @@ class ListsAPI {
     }
     const lists = await listsCollection.where('user.id', '==', user.uid).get();
     return lists.docs;
+  };
+
+  updateList = async (id, name, description, image, visibility) => {
+    if (!isValidListVisibility(visibility)) {
+      throw new ListsError(
+        'invalid-visibility-value',
+        `visibility only takes values of ${Object.values(LIST_VISIBILITY)}`
+      );
+    }
+    this._validateListOwner(id);
+
+    const data = {
+      name,
+      description,
+      visibility,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    };
+
+    const uploadPath = `lists/${id}/`;
+    if (typeof image !== 'string' && image !== null) {
+      const unusedImageNames = await getUnusedImageNames([image], uploadPath);
+      await deleteImages(unusedImageNames, uploadPath);
+
+      const imageName = `${id}_${Date.now()}_${uuidv4()}`;
+      const imageUrl = await uploadImage(image, imageName, uploadPath);
+      data['imageUrl'] = imageUrl;
+    } else if (image === null) {
+      const unusedImageNames = await getUnusedImageNames([], uploadPath);
+      await deleteImages(unusedImageNames, uploadPath);
+      data['imageUrl'] = getEmptyImageMappings();
+    }
+
+    const listRef = listsCollection.doc(id);
+    await listRef.update(data);
+    return listRef.get();
   };
 
   addFood = async (
@@ -225,6 +264,22 @@ class ListsAPI {
 
     await Promise.all([foodRef.update(foodData), newReview.set(reviewData)]);
     return newReview.get();
+  };
+
+  _validateListOwner = async (listId) => {
+    const currentUser = firebaseAuth.currentUser;
+    if (currentUser === null) {
+      throw new UsersError('invalid-user', 'current user is null');
+    }
+    const userId = currentUser.uid;
+
+    const listSnapshot = await this.getList(listId);
+    if (!listSnapshot.exists) {
+      throw new ListsError('invalid-list', 'list does not exist');
+    }
+    if (listSnapshot.data().user.id !== userId) {
+      throw new ListsError('invalid-list', 'list does not belong to the user');
+    }
   };
 }
 
