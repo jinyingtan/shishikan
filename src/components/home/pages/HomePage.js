@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Flex, Box, Stack, useDisclosure } from '@chakra-ui/react';
 import { MaxWidthContainer } from '@components/containers';
 import { searchClient } from '@utils/algolia';
@@ -16,6 +16,12 @@ const HomePage = () => {
   const [verdict, setVerdict] = useState();
   const [price, setPrice] = useState();
   const [category, setCategory] = useState();
+
+  const [latLngFilter, setLatLngFilter] = useState('');
+
+  const onLatLngUpdated = (latLng) => {
+    setLatLngFilter(latLng);
+  };
 
   return (
     <InstantSearch
@@ -38,9 +44,14 @@ const HomePage = () => {
       <MaxWidthContainer>
         <Box w="100%" display="flex" justifyContent="center">
           <Stack as={Flex} direction="column" w="100%" maxW="1000px">
-            <FoodFilterBy verdict={verdict} category={category} price={price} />
+            <FoodFilterBy verdict={verdict} category={category} price={price} onLatLngUpdated={onLatLngUpdated} />
 
-            <Configure filters={getFood(auth.user?.uid)} hitsPerPage={8} />
+            <Configure
+              filters={getFood(auth.user?.uid)}
+              hitsPerPage={8}
+              aroundLatLng={latLngFilter}
+              aroundRadius={10000}
+            />
 
             <FoodItemInfiniteHit minHitsPerPage={8} />
           </Stack>

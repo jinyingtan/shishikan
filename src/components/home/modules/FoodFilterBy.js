@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Flex,
   Button,
@@ -10,14 +10,11 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
-  Checkbox,
   useDisclosure,
 } from '@chakra-ui/react';
-import { StarIcon, AddIcon, ChevronDownIcon } from '@chakra-ui/icons';
-import { connectSortBy, connectRefinementList, InstantSearch } from 'react-instantsearch-dom';
+import { ChevronDownIcon } from '@chakra-ui/icons';
+import { connectRefinementList } from 'react-instantsearch-dom';
 import Filter from './Filter';
-
-import { searchClient } from '@utils/algolia';
 
 const VerdictFilterSettings = connectRefinementList(Filter);
 const PriceFilterSettings = connectRefinementList(Filter);
@@ -25,8 +22,22 @@ const CategoryFilterSettings = connectRefinementList(Filter);
 
 const VirtualRefinementList = connectRefinementList(() => null);
 
-const FoodFilterBy = ({ verdict, category, price }) => {
+const FoodFilterBy = ({ verdict, category, price, onLatLngUpdated }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [isLocationLoading, setIsLocationLoading] = useState(false);
+
+  useEffect(() => {}, []);
+
+  const onLocationClick = () => {
+    if (navigator.geolocation) {
+      setIsLocationLoading(true);
+      navigator.geolocation.getCurrentPosition((position) => {
+        setIsLocationLoading(false);
+        const latLng = `${position.coords.latitude},${position.coords.longitude}`;
+        onLatLngUpdated(latLng);
+      });
+    }
+  };
 
   return (
     <Stack as={Flex} direction="row" spacing="10px">
@@ -41,7 +52,14 @@ const FoodFilterBy = ({ verdict, category, price }) => {
         Filter
       </Button>
 
-      <Button size="sm" colorScheme="teal" variant="solid" borderRadius="full">
+      <Button
+        size="sm"
+        colorScheme="teal"
+        variant="solid"
+        borderRadius="full"
+        isLoading={isLocationLoading}
+        onClick={onLocationClick}
+      >
         Location
       </Button>
 
