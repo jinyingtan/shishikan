@@ -53,7 +53,7 @@ const FoodCard = ({
           </Box>
         </Skeleton>
       ) : (
-        <Box backgroundColor="gray.100" height="52%"></Box>
+        <Box backgroundColor="gray.100" w="100%" height="200px"></Box>
       )}
 
       <Box p="6">
