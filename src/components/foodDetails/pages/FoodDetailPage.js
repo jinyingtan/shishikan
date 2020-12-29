@@ -1,13 +1,22 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Carousel from '@components/foodDetails/modules/Carousel';
-import { Box, Text, Heading, Stack, Link, Tag, Icon } from '@chakra-ui/react';
+import { Box, Text, Heading, Stack, Link, Tag, Icon, Divider, StackDivider } from '@chakra-ui/react';
 import { MaxWidthContainer } from '@components/containers';
 import { Cost, Verdict } from '@components/cards';
 import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { AiFillTags } from 'react-icons/ai';
+import api from 'api';
+import Review from '@components/foodDetails/modules/Review';
 
-const FoodDetailPage = ({ food, isMine }) => {
-  console.log(food.categories);
+const FoodDetailPage = ({ food, list, isMine }) => {
+  const [reviews, setReviews] = useState([]);
+
+  useEffect(() => {
+    api.lists.getReview(list.id, food.id).then((docs) => {
+      const reviews = docs.map((doc) => doc.data());
+      setReviews(reviews);
+    });
+  }, []);
   return (
     <MaxWidthContainer px={{ base: 0, md: '20px' }} mt={{ base: 0, md: '40px' }} maxW="900px">
       <Box w="100%" display="flex" justifyContent="center">
@@ -53,6 +62,23 @@ const FoodDetailPage = ({ food, isMine }) => {
                 <Tag mr="1" colorScheme="cyan">
                   {tag.name}
                 </Tag>
+              ))}
+            </Stack>
+          </Stack>
+
+          <Stack px="3">
+            <Divider />
+            <Heading as="h4" size="md">
+              Reviews
+            </Heading>
+
+            <Stack p="2" divider={<StackDivider borderColor="gray.200" />}>
+              {reviews.map((review) => (
+                <Review
+                  user={review?.user}
+                  description={review?.description}
+                  createdAt={review?.createdAt.toMillis()}
+                />
               ))}
             </Stack>
           </Stack>

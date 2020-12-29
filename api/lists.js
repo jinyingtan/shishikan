@@ -239,6 +239,11 @@ class ListsAPI {
     await Promise.all([foodRef.update(foodData), newReview.set(reviewData)]);
     return newReview.get();
   };
+
+  getReview = async (listId, foodId) => {
+    const reviews = await listsCollection.doc(listId).collection('food').doc(foodId).collection('reviews').get();
+    return reviews.docs;
+  };
 }
 
 export default ListsAPI;

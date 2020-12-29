@@ -26,10 +26,13 @@ export async function getServerSideProps(ctx) {
     let food = null;
     let isMine = false;
     let isPrivate = false;
+    let list = null;
 
     if (foodDoc.exists) {
       food = foodDoc.data();
+      list = listDoc.data();
       deserializeFirestoreTimestampToUnixTimestamp(food);
+      deserializeFirestoreTimestampToUnixTimestamp(list);
       isPrivate = listDoc.data().visibility === 'private';
 
       if (user?.uid === food?.user?.id) {
@@ -38,6 +41,7 @@ export async function getServerSideProps(ctx) {
 
       if (!isMine && isPrivate) {
         food = null;
+        list = null;
       }
     }
 
@@ -46,6 +50,7 @@ export async function getServerSideProps(ctx) {
         user: user || null,
         isMine,
         food,
+        list,
       },
     };
   } catch (error) {
@@ -56,16 +61,16 @@ export async function getServerSideProps(ctx) {
   }
 }
 
-const Food = ({ user, food, isMine }) => {
+const Food = ({ user, food, list, isMine }) => {
   return (
     <AuthProvider user={user}>
       <TopNavbar />
       {food ? (
-        <FoodDetailPage food={food} isMine={isMine} />
+        <FoodDetailPage food={food} list={list} isMine={isMine} />
       ) : (
         <Error statusCode="404" title="The list's creator either deleted it or stopped sharing it" />
       )}
-      {isMine ? <FoodDetailBottomNavbar /> : <BottomNavbar />}
+      {isMine ? <FoodDetailBottomNavbar food={food} list={list} /> : <BottomNavbar />}
     </AuthProvider>
   );
 };
