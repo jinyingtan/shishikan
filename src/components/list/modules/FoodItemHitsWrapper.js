@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { SimpleGrid, Skeleton, Box } from '@chakra-ui/react';
 import FoodCard from '@components/cards/FoodCard';
+import { useRouter } from 'next/router';
 
 /**
  * https://www.algolia.com/doc/api-reference/widgets/infinite-hits/react/#create-a-react-component
@@ -13,6 +14,7 @@ import FoodCard from '@components/cards/FoodCard';
  */
 const FoodItemHitWrapper = ({ hits, hasPrevious, hasMore, refinePrevious, refineNext, refine, isFirst }) => {
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     setLoading(false);
@@ -59,6 +61,9 @@ const FoodItemHitWrapper = ({ hits, hasPrevious, hasMore, refinePrevious, refine
               status={food.verdict}
               cost={food.price}
               createdBy={{ name: food.user.name, profileImageUrl: food.user.profileImageUrl.raw }}
+              onClick={() => {
+                router.push(`/food/${food.objectID}`);
+              }}
             />
           ))}
         <li ref={sentinel} style={{ listStyleType: 'none' }} />
