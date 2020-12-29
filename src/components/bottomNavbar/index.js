@@ -37,6 +37,7 @@ const BottomNavbar = () => {
       bg={bgColor[colorMode]}
       boxShadow="base"
       display={{ base: 'flex', md: 'none' }}
+      pb="calc(.5rem + env(safe-area-inset-bottom))"
     >
       <Button variant="ghost" w="100%" onClick={() => onNavItemClick('/', false)}>
         <Flex direction="column" align="center">
