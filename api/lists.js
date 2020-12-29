@@ -152,6 +152,19 @@ class ListsAPI {
     return foods.docs;
   };
 
+  getFoodAndList = async (foodId) => {
+    const foodDocs = await db.collectionGroup('food').where('id', '==', foodId).get();
+    if (foodDocs.empty) {
+      throw new ListsError('food-does-not-exists', `Food does not exists`);
+    }
+
+    const foodDoc = foodDocs.docs[0];
+    const listId = foodDoc.ref.parent.parent.id;
+    const listDoc = await listsCollection.doc(listId).get();
+
+    return [foodDoc, listDoc];
+  };
+
   addReview = async (listId, foodId, description, verdict, price = -1, coverImage = null, images = []) => {
     if (!isValidFoodVerdict(verdict)) {
       throw new ListsError('invalid-verdict', `verdict field only takes values of ${Object.values(FOOD_VERDICT)}`);
