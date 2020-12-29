@@ -2,6 +2,7 @@ import React from 'react';
 import { AuthProvider } from '@components/auth';
 import { verifyToken, getUserFromToken } from '@utils/auth';
 import BottomNavbar from '@components/bottomNavbar';
+import FoodDetailBottomNavbar from '@components/bottomNavbar/FoodDetailBottomNavbar';
 import TopNavbar from '@components/topNavbar';
 import api from '@api';
 import { deserializeFirestoreTimestampToUnixTimestamp } from '@utils/firebase/deserialiser';
@@ -64,7 +65,7 @@ const Food = ({ user, food, isMine }) => {
       ) : (
         <Error statusCode="404" title="The list's creator either deleted it or stopped sharing it" />
       )}
-      <BottomNavbar />
+      {isMine ? <FoodDetailBottomNavbar /> : <BottomNavbar />}
     </AuthProvider>
   );
 };
