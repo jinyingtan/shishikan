@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { AREA_CODE } from '@constants/areaCode';
 import { GEO_LOCATION_URL } from '@constants/thirdPartyAPIUrl';
 import LocationsError from '../error/locationsError';
 
@@ -37,7 +36,6 @@ export const getLocationInfos = async (locations) => {
       if (hasPostalCode) {
         const postalCode = geoCodeAddressComponent[geoCodeAddressComponent.length - 1]['long_name'];
         locationInfo['postalCode'] = postalCode;
-        locationInfo['area'] = AREA_CODE[postalCode.substring(0, 2)];
       }
 
       locationInfos.push(locationInfo);
