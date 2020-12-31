@@ -5,7 +5,7 @@ import { MaxWidthContainer } from '@components/containers';
 import { Cost, Verdict } from '@components/cards';
 import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { AiFillTags } from 'react-icons/ai';
-import api from 'api';
+import api from '@api';
 import Review from '@components/foodDetails/modules/Review';
 
 const FoodDetailPage = ({ food, list, isMine }) => {
