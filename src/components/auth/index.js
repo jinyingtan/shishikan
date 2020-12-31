@@ -23,7 +23,14 @@ export function AuthProvider({ children, ...props }) {
       }
 
       const token = await user.getIdToken();
-      setUser(user);
+      const userObj = {
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+        uid: user.uid,
+        email: user.email,
+        isEmailVerified: user.emailVerified,
+      };
+      setUser(userObj);
       nookies.destroy(null, 'token');
       nookies.set(null, 'token', token, {});
     });

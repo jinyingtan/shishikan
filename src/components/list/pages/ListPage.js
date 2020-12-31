@@ -7,11 +7,17 @@ import { searchClient } from '@utils/algolia';
 import FoodItemHitsWrapper from '../modules/FoodItemHitsWrapper';
 import { getFoodFromList } from '@utils/algolia/filteringRules';
 import { useAuth } from '@components/auth';
+import { useRouter } from 'next/router';
 
 const FoodItemInfiniteHit = connectInfiniteHits(FoodItemHitsWrapper);
 
 const ListPage = ({ isMine, list }) => {
   const auth = useAuth();
+  const router = useRouter();
+
+  const routeToAddPage = () => {
+    router.push(`/add?listId=${list.id}`);
+  };
 
   return (
     <InstantSearch searchClient={searchClient} indexName="food">
@@ -40,7 +46,7 @@ const ListPage = ({ isMine, list }) => {
             </Text>
 
             <HStack justifyContent="center" display="flex">
-              <Button leftIcon={<AddIcon />} variant="outline" borderRadius="100px">
+              <Button leftIcon={<AddIcon />} variant="outline" borderRadius="100px" onClick={routeToAddPage}>
                 Add
               </Button>
             </HStack>

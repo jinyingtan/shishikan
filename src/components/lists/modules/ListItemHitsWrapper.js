@@ -22,8 +22,8 @@ const ListItemHitsWrapper = ({ hits, hasPrevious, hasMore, refinePrevious, refin
     <>
       <VStack divider={<StackDivider borderColor="gray.200" />} spacing={4} align="stretch">
         {hits.length === 0 && loading
-          ? [0, 1, 2].map(() => {
-              return <Skeleton h="50px" w="100%" />;
+          ? [0, 1, 2].map((value) => {
+              return <Skeleton h="50px" w="100%" key={value} />;
             })
           : null}
 

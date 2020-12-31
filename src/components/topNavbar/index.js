@@ -37,6 +37,7 @@ import { FcGoogle } from 'react-icons/fc';
 import api from '@api';
 import nookies from 'nookies';
 import { useRouter } from 'next/router';
+import Image from 'next/image';
 
 const TopNavbar = () => {
   const { colorMode } = useColorMode();
@@ -76,6 +77,10 @@ const TopNavbar = () => {
     router.push('/lists');
   };
 
+  const routeToHomePage = () => {
+    router.push('/');
+  };
+
   return (
     <Flex
       alignItems="center"
@@ -91,7 +96,12 @@ const TopNavbar = () => {
       zIndex="100"
       height="56px"
     >
-      <IconButton variant="ghost" aria-label="Search" icon={<StarIcon />} />
+      <IconButton
+        variant="ghost"
+        aria-label="Search"
+        icon={<Image src="/ssk.png" width="35px" height="35px" />}
+        onClick={routeToHomePage}
+      />
 
       <Input flex="3" placeholder="Search for lists, foods, users" borderColor="gray.200" />
 
@@ -106,7 +116,9 @@ const TopNavbar = () => {
       {auth.user ? (
         <>
           <HStack display={{ base: 'none', md: 'flex' }} pl="5px">
-            <Button variant="ghost">Nearby</Button>
+            <Button variant="ghost" onClick={routeToHomePage}>
+              Nearby
+            </Button>
             <Button variant="ghost" onClick={routeToListsPage}>
               MyLists
             </Button>

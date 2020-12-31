@@ -14,3 +14,9 @@ export const FOOD_COST = {
   Affordable: '2',
   Expensive: '3',
 };
+
+export const FOOD_VERDICT_REVIEW = {
+  NO_GO: 'no go',
+  CAN_GO: 'can go',
+  MUST_GO: 'must go',
+};
