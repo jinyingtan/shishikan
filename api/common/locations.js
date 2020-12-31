@@ -48,3 +48,20 @@ export const getLocationInfos = async (locations) => {
 
   return locationInfos;
 };
+
+export const getUpdatedLocations = async (currentLocations, updatedLocations) => {
+  const locations = [];
+  const newLocationsToQuery = [];
+
+  for (const location of updatedLocations) {
+    const locationInfo = currentLocations.find((currentLocation) => currentLocation.name === location);
+    if (locationInfo === undefined) {
+      newLocationsToQuery.push(location);
+    } else {
+      locations.push(locationInfo);
+    }
+  }
+
+  const newLocations = await getLocationInfos(newLocationsToQuery);
+  return [...locations, ...newLocations];
+};

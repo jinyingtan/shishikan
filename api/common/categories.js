@@ -29,3 +29,20 @@ export const getSharedCategoryInfos = async (categoryIds) => {
   }
   return sharedCategoryInfos;
 };
+
+export const getUpdatedCategoryInfos = async (currentCategories, updatedCategoryIds) => {
+  const categoryInfos = [];
+  const newCategoryIdsToQuery = [];
+
+  for (const id of updatedCategoryIds) {
+    const categoryInfo = currentCategories.find((category) => category.id === id);
+    if (categoryInfo === undefined) {
+      newCategoryIdsToQuery.push(id);
+    } else {
+      categoryInfos.push(categoryInfo);
+    }
+  }
+
+  const newCategoryInfos = await getSharedCategoryInfos(newCategoryIdsToQuery);
+  return [...categoryInfos, ...newCategoryInfos];
+};

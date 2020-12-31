@@ -185,7 +185,7 @@ export const getUnusedImageNames = async (imagesToUpload, bucketPath) => {
   const storageImageUrls = await Promise.all(storageImageUrlPromises);
 
   if (storageImageUrls.length === 0) {
-    return []; 
+    return [];
   }
 
   // Get only raw image name to url
@@ -223,12 +223,3 @@ export const getUnusedImageNames = async (imagesToUpload, bucketPath) => {
 
   return unusedImageNames;
 };
-
-export const getEmptyImageMappings = () => {
-  const imageUrlMapping = { raw: '' };
-  for (const imageSizeText of ALL_TEXT) {
-    imageUrlMapping[imageSizeText] = '';
-  }
-
-  return imageUrlMapping;
-}
