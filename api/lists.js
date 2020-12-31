@@ -75,7 +75,7 @@ class ListsAPI {
         `visibility only takes values of ${Object.values(LIST_VISIBILITY)}`
       );
     }
-    this._validateListOwner(id);
+    await this._validateListOwner(id);
 
     const data = {
       name,
@@ -206,7 +206,7 @@ class ListsAPI {
     if (!isValidFoodVerdict(verdict)) {
       throw new ListsError('invalid-verdict', `verdict field only takes values of ${Object.values(FOOD_VERDICT)}`);
     }
-    this._validateListOwner(listId);
+    await this._validateListOwner(listId);
     const hasImages = coverImage !== null && images.length > 0;
     if (hasImages) {
       const [
@@ -287,6 +287,7 @@ class ListsAPI {
     if (verdict === FOOD_VERDICT.TO_TRY) {
       throw new ListsError('invalid-verdict', `review verdict cannot be FOOD_VERDICT.TO_TRY`);
     }
+    await this._validateListOwner(listId);
     const hasImages = coverImage !== null && images.length > 0;
     if (hasImages) {
       const [
@@ -353,6 +354,33 @@ class ListsAPI {
 
     await Promise.all([foodRef.update(foodData), newReview.set(reviewData)]);
     return newReview.get();
+  };
+
+  updateReview = async (reviewId, listId, foodId, description, verdict) => {
+    if (!isValidFoodVerdict(verdict)) {
+      throw new ListsError('invalid-verdict', `verdict field only takes values of ${Object.values(FOOD_VERDICT)}`);
+    }
+    if (verdict === FOOD_VERDICT.TO_TRY) {
+      throw new ListsError('invalid-verdict', `review verdict cannot be FOOD_VERDICT.TO_TRY`);
+    }
+    await this._validateListOwner(listId);
+
+    const foodRef = listsCollection.doc(listId).collection('food').doc(foodId);
+    const timeNow = firebase.firestore.FieldValue.serverTimestamp();
+    const foodData = {
+      verdict,
+      updatedAt: timeNow,
+    };
+
+    const reviewRef = listsCollection.doc(listId).collection('food').doc(foodId).collection('reviews').doc(reviewId);
+    const reviewData = {
+      description,
+      verdict,
+      updatedAt: timeNow,
+    };
+
+    await Promise.all([foodRef.update(foodData), reviewRef.update(reviewData)]);
+    return reviewRef.get();
   };
 
   _validateListOwner = async (listId) => {
