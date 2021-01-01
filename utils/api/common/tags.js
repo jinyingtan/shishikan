@@ -36,3 +36,20 @@ export const getOrCreateSharedTagInfos = async (tagNames) => {
   }
   return sharedTagInfos;
 };
+
+export const getUpdatedTagInfos = async (currentTags, updatedTagNames) => {
+  const tagInfos = [];
+  const newTagNamesToQuery = [];
+
+  for (const name of updatedTagNames) {
+    const tagInfo = currentTags.find((tag) => tag.name === name);
+    if (tagInfo === undefined) {
+      newTagNamesToQuery.push(name);
+    } else {
+      tagInfos.push(tagInfo);
+    }
+  }
+
+  const newTagInfos = await getOrCreateSharedTagInfos(newTagNamesToQuery);
+  return [...tagInfos, ...newTagInfos];
+};

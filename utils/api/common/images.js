@@ -184,6 +184,10 @@ export const getUnusedImageNames = async (imagesToUpload, bucketPath) => {
   });
   const storageImageUrls = await Promise.all(storageImageUrlPromises);
 
+  if (storageImageUrls.length === 0) {
+    return [];
+  }
+
   // Get only raw image name to url
   const storageImageNameAndUrls = [];
   for (let i = 0; i < storageImageUrls.length; i++) {
