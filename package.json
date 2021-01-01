@@ -24,6 +24,7 @@
     "formik": "^2.2.5",
     "framer-motion": "^2.9.5",
     "next": "^10.0.3",
+    "next-pwa": "^5.0.2",
     "nookies": "^2.5.0",
     "react": "^17.0.1",
     "react-beautiful-dnd": "^13.0.0",
