@@ -26,7 +26,7 @@ function MyApp({ Component, pageProps }) {
             <link rel="manifest" href="/manifest.json" />
             <link href="/favicon" rel="icon" type="image/png" sizes="48x48" />
             <link rel="apple-touch-icon" href="/ssk.png"></link>
-            <meta name="theme-color" content="#317EFB" />
+            <meta name="theme-color" content="#ffffff" />
           </Head>
           <Component {...pageProps} />
         </ColorModeProvider>
