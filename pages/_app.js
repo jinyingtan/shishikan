@@ -18,13 +18,10 @@ function MyApp({ Component, pageProps }) {
           <Head>
             <meta charset="utf-8" />
             <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-            <meta
-              name="viewport"
-              content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"
-            />
+            <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover" />
             <meta name="description" content="Description" />
             <meta name="keywords" content="Keywords" />
-            <title>Shi Shi Kan</title>
+            <title>ShiShiKan</title>
 
             <link rel="manifest" href="/manifest.json" />
             <link href="/favicon" rel="icon" type="image/png" sizes="48x48" />
