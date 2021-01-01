@@ -19,8 +19,8 @@ function MyApp({ Component, pageProps }) {
             <meta charset="utf-8" />
             <meta http-equiv="X-UA-Compatible" content="IE=edge" />
             <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover" />
-            <meta name="description" content="Description" />
-            <meta name="keywords" content="Keywords" />
+            <meta name="description" content="Managing your food list" />
+            <meta name="keywords" content="food,list" />
             <title>ShiShiKan</title>
 
             <link rel="manifest" href="/manifest.json" />
