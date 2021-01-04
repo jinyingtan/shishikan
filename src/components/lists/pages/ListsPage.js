@@ -25,6 +25,7 @@ import {
   Radio,
   RadioGroup,
   useToast,
+  IconButton,
 } from '@chakra-ui/react';
 import { InstantSearch, Configure, connectInfiniteHits } from 'react-instantsearch-dom';
 import { searchClient } from '@utils/algolia';
@@ -35,7 +36,7 @@ import * as Yup from 'yup';
 import api from '@api';
 import { LIST_VISIBILITY } from '@constants/lists';
 import { useRouter } from 'next/router';
-
+import { IoIosRefresh } from 'react-icons/io';
 const ListItemInfiniteHit = connectInfiniteHits(ListItemHitsWrapper);
 
 const ListsPage = () => {
@@ -92,7 +93,10 @@ const ListsPage = () => {
       <MaxWidthContainer>
         <Stack as={Flex} direction="column" w="100%">
           <Box>
-            <Button onClick={onOpen}>Create a list</Button>
+            <Stack direction="row">
+              <Button onClick={onOpen}>Create a list</Button>
+              <IconButton aria-label="refresh page" icon={<IoIosRefresh />} onClick={() => router.reload()} />
+            </Stack>
           </Box>
 
           <Stack direction={{ base: 'column', md: 'row' }} w="100%">
