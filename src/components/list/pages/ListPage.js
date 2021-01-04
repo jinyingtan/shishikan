@@ -1,5 +1,5 @@
 import React from 'react';
-import { Stack, HStack, Heading, Button, Box, Tag, TagLabel, TagLeftIcon, Text } from '@chakra-ui/react';
+import { Stack, HStack, Heading, Button, Box, Tag, TagLabel, TagLeftIcon, Text, IconButton } from '@chakra-ui/react';
 import { MaxWidthContainer } from '@components/containers';
 import { LockIcon, UnlockIcon, AddIcon } from '@chakra-ui/icons';
 import { InstantSearch, Configure, connectInfiniteHits } from 'react-instantsearch-dom';
@@ -8,6 +8,7 @@ import FoodItemHitsWrapper from '../modules/FoodItemHitsWrapper';
 import { getFoodFromList } from '@utils/algolia/filteringRules';
 import { useAuth } from '@components/auth';
 import { useRouter } from 'next/router';
+import { IoIosRefresh } from 'react-icons/io';
 
 const FoodItemInfiniteHit = connectInfiniteHits(FoodItemHitsWrapper);
 
@@ -49,6 +50,14 @@ const ListPage = ({ isMine, list }) => {
               <Button leftIcon={<AddIcon />} variant="outline" borderRadius="100px" onClick={routeToAddPage}>
                 Add
               </Button>
+
+              <IconButton
+                aria-label="refresh page"
+                icon={<IoIosRefresh />}
+                onClick={() => router.reload()}
+                variant="outline"
+                borderRadius="100px"
+              />
             </HStack>
 
             <Configure filters={getFoodFromList(list.id, auth.user?.uid)} hitsPerPage={8} />
