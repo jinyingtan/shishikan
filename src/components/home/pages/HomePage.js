@@ -7,6 +7,7 @@ import { getFood } from '@utils/algolia/filteringRules';
 import FoodItemHitsWrapper from '@components/list/modules/FoodItemHitsWrapper';
 import { useAuth } from '@components/auth';
 import FoodFilterBy from '../modules/FoodFilterBy';
+import UnAuthHomePage from '@components/home/modules/UnAuthHomePage';
 
 const FoodItemInfiniteHit = connectInfiniteHits(FoodItemHitsWrapper);
 const VirtualRefinementList = connectRefinementList(() => null);
@@ -25,6 +26,16 @@ const HomePage = () => {
   const onSearchStateChange = (searchState) => {
     setSearchState(searchState);
   };
+
+  if (!auth.user) {
+    return (
+      <UnAuthHomePage
+        title="Welcome to ShiShiKan"
+        subtitle="The place where you store your foodlist and manage them!"
+        image={`https://images.unsplash.com/photo-1505826759037-406b40feb4cd?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=2552&q=80`}
+      />
+    );
+  }
 
   return (
     <InstantSearch
