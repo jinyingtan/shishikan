@@ -19,13 +19,13 @@ import {
   FormControl,
   FormLabel,
   FormErrorMessage,
-  FormHelperText,
   Input,
   Textarea,
   Radio,
   RadioGroup,
   useToast,
   IconButton,
+  CircularProgress,
 } from '@chakra-ui/react';
 import { InstantSearch, Configure, connectInfiniteHits } from 'react-instantsearch-dom';
 import { searchClient } from '@utils/algolia';
@@ -37,6 +37,7 @@ import api from '@api';
 import { LIST_VISIBILITY } from '@constants/lists';
 import { useRouter } from 'next/router';
 import { IoIosRefresh } from 'react-icons/io';
+
 const ListItemInfiniteHit = connectInfiniteHits(ListItemHitsWrapper);
 
 const ListsPage = () => {
@@ -45,6 +46,9 @@ const ListsPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
   const router = useRouter();
+  const [list, setList] = useState();
+  const [editId, setEditId] = useState();
+  const [modalLoading, setModalLoading] = useState(false);
 
   const validationSchema = Yup.object().shape({
     name: Yup.string()
@@ -56,7 +60,7 @@ const ListsPage = () => {
   });
 
   const formik = useFormik({
-    initialValues: {
+    initialValues: list || {
       name: '',
       description: '',
       visibility: '',
@@ -64,28 +68,70 @@ const ListsPage = () => {
     validationSchema: validationSchema,
     enableReinitialize: true,
     onSubmit: (values) => {
-      handleCreateList(values);
+      if (list) {
+        handleEditList(values);
+      } else {
+        handleCreateList(values);
+      }
     },
   });
 
-  const handleCreateList = (values) => {
-    const { name, description, visibility } = values;
-    console.log(values);
-    setIsLoading(true);
-    api.lists
-      .createList(name, description, null, visibility)
-      .then((snapshot) => {
-        router.reload();
-      })
-      .catch((error) => {
-        toast({
-          title: 'Error',
-          description: error.message,
-          status: 'error',
-          duration: 3000,
-          isClosable: true,
-        });
+  const handleCreateList = async (values) => {
+    try {
+      const { name, description, visibility } = values;
+      setIsLoading(true);
+      const snapshot = await api.lists.createList(name, description, null, visibility);
+      router.reload();
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error.message,
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
       });
+    } finally {
+      formik.setSubmitting(false);
+      setIsLoading(false);
+    }
+  };
+
+  const handleEditList = async (values) => {
+    try {
+      const { name, description, visibility } = values;
+      setIsLoading(true);
+      const snapshot = await api.lists.updateList(editId, name, description, null, visibility);
+      router.reload();
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error.message,
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      formik.setSubmitting(false);
+      setIsLoading(false);
+      setList();
+      setEditId();
+    }
+  };
+
+  const handleEditClick = (id) => {
+    onOpen();
+    setModalLoading(true);
+    api.lists.getList(id).then((snapshot) => {
+      const data = snapshot.data();
+      const editList = {
+        name: data.name,
+        description: data.description,
+        visibility: data.visibility,
+      };
+      setList(editList);
+      setEditId(id);
+      setModalLoading(false);
+    });
   };
 
   return (
@@ -113,10 +159,9 @@ const ListsPage = () => {
                 Your lists
               </Heading>
 
-              <Configure filters={`user.id:'${auth.user?.uid}'`} hitsPerPage={8} />
-              <>
-                <ListItemInfiniteHit minHitsPerPage={8} />
-              </>
+              <Configure filters={`user.id:'${auth.user?.uid}'`} hitsPerPage={20} />
+
+              <ListItemInfiniteHit minHitsPerPage={20} onEditClick={handleEditClick} />
             </Flex>
 
             <Flex
@@ -137,67 +182,81 @@ const ListsPage = () => {
           </Stack>
         </Stack>
 
-        <Modal isOpen={isOpen} onClose={onClose} isCentered>
+        <Modal
+          isOpen={isOpen}
+          onClose={() => {
+            onClose();
+            setList();
+            setEditId();
+          }}
+          isCentered
+        >
           <ModalOverlay />
           <ModalContent>
-            <ModalHeader>Create a list</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <Box w="100%" display="flex" justifyContent="center" as="form" onSubmit={formik.handleSubmit}>
-                <Stack w="100%" maxW="800px" spacing="24px">
-                  <FormControl
-                    id="name"
-                    isRequired
-                    isInvalid={formik.errors.name && formik.touched.name}
-                    isDisabled={formik.isSubmitting}
-                  >
-                    <FormLabel>Name</FormLabel>
-                    <Input id="name" placeholder="name" {...formik.getFieldProps('name')} />
-                    <FormErrorMessage>{formik.errors.name}</FormErrorMessage>
-                  </FormControl>
+            {modalLoading ? (
+              <CircularProgress isIndeterminate color="green.300" display="flex" justifyContent="center" p="4" />
+            ) : (
+              <>
+                <ModalHeader>{list ? 'Edit' : 'Create'} a list</ModalHeader>
+                <ModalCloseButton />
+                <ModalBody>
+                  <Box w="100%" display="flex" justifyContent="center" as="form" onSubmit={formik.handleSubmit}>
+                    <Stack w="100%" maxW="800px" spacing="24px">
+                      <FormControl
+                        id="name"
+                        isRequired
+                        isInvalid={formik.errors.name && formik.touched.name}
+                        isDisabled={formik.isSubmitting}
+                      >
+                        <FormLabel>Name</FormLabel>
+                        <Input id="name" placeholder="name" {...formik.getFieldProps('name')} />
+                        <FormErrorMessage>{formik.errors.name}</FormErrorMessage>
+                      </FormControl>
 
-                  <FormControl
-                    id="description"
-                    isRequired
-                    isInvalid={formik.touched.description && formik.errors.description}
-                    isDisabled={formik.isSubmitting}
-                  >
-                    <FormLabel>Description</FormLabel>
-                    <Textarea id="description" placeholder="description" {...formik.getFieldProps('description')} />
-                    <FormErrorMessage>{formik.errors.description}</FormErrorMessage>
-                  </FormControl>
+                      <FormControl
+                        id="description"
+                        isRequired
+                        isInvalid={formik.touched.description && formik.errors.description}
+                        isDisabled={formik.isSubmitting}
+                      >
+                        <FormLabel>Description</FormLabel>
+                        <Textarea id="description" placeholder="description" {...formik.getFieldProps('description')} />
+                        <FormErrorMessage>{formik.errors.description}</FormErrorMessage>
+                      </FormControl>
 
-                  <FormControl
-                    as="fieldset"
-                    id="visibility"
-                    isRequired
-                    isInvalid={formik.touched.visibility && formik.errors.visibility}
-                    isDisabled={formik.isSubmitting}
-                  >
-                    <FormLabel as="legend">Visibility</FormLabel>
-                    <RadioGroup
-                      onChange={(value) => {
-                        formik.setFieldValue('visibility', value);
-                      }}
-                      value={formik.values.verdict}
-                    >
-                      <Stack direction={['column', 'row']} spacing={['10px', '24px']}>
-                        {Object.entries(LIST_VISIBILITY).map((visibility) => (
-                          <Radio key={visibility[1]} id={visibility[1]} value={visibility[1]}>
-                            {visibility[1]}
-                          </Radio>
-                        ))}
-                      </Stack>
-                    </RadioGroup>
-                    <FormErrorMessage>{formik.errors.verdict}</FormErrorMessage>
-                  </FormControl>
+                      <FormControl
+                        as="fieldset"
+                        id="visibility"
+                        isRequired
+                        isInvalid={formik.touched.visibility && formik.errors.visibility}
+                        isDisabled={formik.isSubmitting}
+                      >
+                        <FormLabel as="legend">Visibility</FormLabel>
+                        <RadioGroup
+                          onChange={(value) => {
+                            formik.setFieldValue('visibility', value);
+                          }}
+                          value={formik.values.visibility}
+                        >
+                          <Stack direction={['column', 'row']} spacing={['10px', '24px']}>
+                            {Object.entries(LIST_VISIBILITY).map((visibility) => (
+                              <Radio key={visibility[1]} id={visibility[1]} value={visibility[1]}>
+                                {visibility[1]}
+                              </Radio>
+                            ))}
+                          </Stack>
+                        </RadioGroup>
+                        <FormErrorMessage>{formik.errors.verdict}</FormErrorMessage>
+                      </FormControl>
 
-                  <Button type="submit" isLoading={isLoading} isDisabled={formik.isSubmitting}>
-                    Submit
-                  </Button>
-                </Stack>
-              </Box>
-            </ModalBody>
+                      <Button type="submit" isLoading={isLoading} isDisabled={formik.isSubmitting}>
+                        Submit
+                      </Button>
+                    </Stack>
+                  </Box>
+                </ModalBody>
+              </>
+            )}
 
             <ModalFooter>
               <Button onClick={onClose}>Close</Button>

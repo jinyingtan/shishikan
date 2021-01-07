@@ -11,7 +11,7 @@ import ListCard from '@components/cards/ListCard';
  * @param {function} refinePrevious
  * @param {function} refineNext
  */
-const ListItemHitsWrapper = ({ hits, hasPrevious, hasMore, refinePrevious, refineNext, refine, isFirst }) => {
+const ListItemHitsWrapper = ({ hits, hasPrevious, hasMore, refinePrevious, refineNext, refine, isFirst, onEditClick }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,7 +29,7 @@ const ListItemHitsWrapper = ({ hits, hasPrevious, hasMore, refinePrevious, refin
 
         {hits.length > 0 &&
           hits.map((list, index) => (
-            <ListCard key={index} title={list.name} visibility={list.visibility} id={list.objectID} />
+            <ListCard key={index} title={list.name} visibility={list.visibility} id={list.objectID} onEditClick={onEditClick} />
           ))}
       </VStack>
     </>
