@@ -31,7 +31,7 @@ const ListCard = ({ visibility = 'public', title, id, onEditClick }) => {
 
   const handleEdit = () => {
     onEditClick(id);
-  }
+  };
 
   return (
     <Flex h="50px" direction="row">
