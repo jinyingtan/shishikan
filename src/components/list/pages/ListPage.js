@@ -1,19 +1,29 @@
 import React from 'react';
-import { Stack, HStack, Heading, Button, Box, Tag, TagLabel, TagLeftIcon, Text, IconButton } from '@chakra-ui/react';
+import {
+  Stack,
+  HStack,
+  Heading,
+  Button,
+  Box,
+  Tag,
+  TagLabel,
+  TagLeftIcon,
+  Text,
+  IconButton,
+  Avatar,
+} from '@chakra-ui/react';
 import { MaxWidthContainer } from '@components/containers';
 import { LockIcon, UnlockIcon, AddIcon } from '@chakra-ui/icons';
 import { InstantSearch, Configure, connectInfiniteHits } from 'react-instantsearch-dom';
 import { searchClient } from '@utils/algolia';
 import FoodItemHitsWrapper from '../modules/FoodItemHitsWrapper';
 import { getFoodFromList } from '@utils/algolia/filteringRules';
-import { useAuth } from '@components/auth';
 import { useRouter } from 'next/router';
 import { IoIosRefresh } from 'react-icons/io';
 
 const FoodItemInfiniteHit = connectInfiniteHits(FoodItemHitsWrapper);
 
 const ListPage = ({ isMine, list }) => {
-  const auth = useAuth();
   const router = useRouter();
 
   const routeToAddPage = () => {
@@ -42,6 +52,13 @@ const ListPage = ({ isMine, list }) => {
               )}
             </Box>
 
+            <Box justifyContent="center" display="flex">
+              <Tag size="lg" colorScheme="gray" borderRadius="full">
+                <Avatar src={list.user.profileImageUrl.raw} size="xs" name={list.user.name} ml={-1} mr={2} />
+                <TagLabel>{list.user.name}</TagLabel>
+              </Tag>
+            </Box>
+
             <Text noOfLines={8} align="center">
               {list.description}
             </Text>
@@ -60,7 +77,7 @@ const ListPage = ({ isMine, list }) => {
               />
             </HStack>
 
-            <Configure filters={getFoodFromList(list.id, auth.user?.uid)} hitsPerPage={8} />
+            <Configure filters={getFoodFromList(list.id, list.user?.id)} hitsPerPage={8} />
             <>
               <FoodItemInfiniteHit minHitsPerPage={8} />
             </>
