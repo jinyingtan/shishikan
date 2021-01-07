@@ -9,47 +9,44 @@ import Error from 'next/error';
 import ListPage from '@components/list/pages/ListPage';
 
 export async function getServerSideProps(ctx) {
+  let token = null;
+  let user = null;
   try {
-    const token = await verifyToken(ctx);
-    if (!token) {
-      ctx.res.writeHead(302, { Location: '/' });
-      ctx.res.end();
-    }
-    const user = getUserFromToken(token);
-    const listId = ctx.params.listId;
-    const listDoc = await api.lists.getList(listId);
-
-    let list = null;
-    let isMine = false;
-    let isPrivate = false;
-
-    if (listDoc.exists) {
-      list = listDoc.data();
-      deserializeFirestoreTimestampToUnixTimestamp(list);
-      isPrivate = list.visibility === 'private';
-
-      if (user?.uid === list?.user?.id) {
-        isMine = true;
-      }
-
-      if (!isMine && isPrivate) {
-        list = null;
-      }
-    }
-
-    return {
-      props: {
-        user: user || null,
-        isMine,
-        list,
-      },
-    };
+    token = await verifyToken(ctx);
+    user = getUserFromToken(token);
   } catch (error) {
-    console.log('error', error);
-    ctx.res.writeHead(302, { Location: '/' });
-    ctx.res.end();
-    return { props: {} };
+    token = null;
+    user = null;
   }
+
+  const listId = ctx.params.listId;
+  const listDoc = await api.lists.getList(listId);
+
+  let list = null;
+  let isMine = false;
+  let isPrivate = false;
+
+  if (listDoc.exists) {
+    list = listDoc.data();
+    deserializeFirestoreTimestampToUnixTimestamp(list);
+    isPrivate = list.visibility === 'private';
+
+    if (user?.uid === list?.user?.id) {
+      isMine = true;
+    }
+
+    if (!isMine && isPrivate) {
+      list = null;
+    }
+  }
+
+  return {
+    props: {
+      user: user || null,
+      isMine,
+      list,
+    },
+  };
 }
 
 const List = ({ user, list, isMine }) => {

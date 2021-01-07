@@ -9,56 +9,51 @@ import { deserializeFirestoreTimestampToUnixTimestamp } from '@utils/firebase/de
 import Error from 'next/error';
 import FoodDetailPage from '@components/foodDetails/pages/FoodDetailPage';
 
-import { db, firebase, firebaseAuth } from '@utils/firebase';
-
 export async function getServerSideProps(ctx) {
+  let token = null;
+  let user = null;
   try {
-    const token = await verifyToken(ctx);
-    if (!token) {
-      ctx.res.writeHead(302, { Location: '/' });
-      ctx.res.end();
-    }
-    const user = getUserFromToken(token);
-    const foodId = ctx.params.foodId;
-
-    const [foodDoc, listDoc] = await api.lists.getFoodAndList(foodId);
-
-    let food = null;
-    let isMine = false;
-    let isPrivate = false;
-    let list = null;
-
-    if (foodDoc.exists) {
-      food = foodDoc.data();
-      list = listDoc.data();
-      deserializeFirestoreTimestampToUnixTimestamp(food);
-      deserializeFirestoreTimestampToUnixTimestamp(list);
-      isPrivate = listDoc.data().visibility === 'private';
-
-      if (user?.uid === food?.user?.id) {
-        isMine = true;
-      }
-
-      if (!isMine && isPrivate) {
-        food = null;
-        list = null;
-      }
-    }
-
-    return {
-      props: {
-        user: user || null,
-        isMine,
-        food,
-        list,
-      },
-    };
+    token = await verifyToken(ctx);
+    user = getUserFromToken(token);
   } catch (error) {
-    console.log('error', error);
-    ctx.res.writeHead(302, { Location: '/' });
-    ctx.res.end();
-    return { props: {} };
+    token = null;
+    user = null;
   }
+
+  const foodId = ctx.params.foodId;
+
+  const [foodDoc, listDoc] = await api.lists.getFoodAndList(foodId);
+
+  let food = null;
+  let isMine = false;
+  let isPrivate = false;
+  let list = null;
+
+  if (foodDoc.exists) {
+    food = foodDoc.data();
+    list = listDoc.data();
+    deserializeFirestoreTimestampToUnixTimestamp(food);
+    deserializeFirestoreTimestampToUnixTimestamp(list);
+    isPrivate = listDoc.data().visibility === 'private';
+
+    if (user?.uid === food?.user?.id) {
+      isMine = true;
+    }
+
+    if (!isMine && isPrivate) {
+      food = null;
+      list = null;
+    }
+  }
+
+  return {
+    props: {
+      user: user || null,
+      isMine,
+      food,
+      list,
+    },
+  };
 }
 
 const Food = ({ user, food, list, isMine }) => {
