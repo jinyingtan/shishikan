@@ -30,6 +30,7 @@ import DragNDropInput from '@components/input/DragNDropInput';
 
 const AddPage = ({ listId }) => {
   const router = useRouter();
+  const toast = useToast();
   const [myLists, setMyLists] = useState([]);
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(false);

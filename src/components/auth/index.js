@@ -32,7 +32,7 @@ export function AuthProvider({ children, ...props }) {
       };
       setUser(userObj);
       nookies.destroy(null, 'token');
-      nookies.set(null, 'token', token, {});
+      nookies.set(null, 'token', token, { path: '/' });
     });
   }, []);
 
@@ -47,7 +47,11 @@ export function AuthProvider({ children, ...props }) {
     const handle = setInterval(async () => {
       console.log(`refreshing token...`);
       const user = firebase.auth().currentUser;
-      if (user) await user.getIdToken(true);
+      if (user) {
+        const token = await user.getIdToken(true);
+        nookies.destroy(null, 'token');
+        nookies.set(null, 'token', token, { path: '/' });
+      }
     }, 45 * 60 * 1000);
     return () => clearInterval(handle);
   }, []);
