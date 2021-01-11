@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Head from 'next/head';
 import { GOOGLE_PLACE_AUTOCOMPLETE_URL } from '@constants/google';
-import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete';
+import PlacesAutocomplete from 'react-places-autocomplete';
 import {
   Flex,
   Input,
@@ -23,29 +23,16 @@ import { useRouter } from 'next/router';
 const FoodSearchHits = connectHits(FoodSearchHitsWrapper);
 
 const Searchbar = () => {
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [search, setSearch] = useState('');
   const router = useRouter();
 
-  const close = () => {
-    setIsSearchOpen(false);
-  };
-
-  const handleChange = (address) => {
-    console.log(address);
+  const handlePlacesChange = (address) => {
     setSearch(address);
   };
 
-  const handleSelect = (address) => {
+  const handlePlacesSelect = (address) => {
     setSearch('');
     router.push(`/?around=${address}`);
-    // geocodeByAddress(address)
-    //   .then((results) => getLatLng(results[0]))
-    //   .then((latLng) => {
-    //     const { lat, lng } = latLng;
-    //     router.push(`/?lat=${lat}&lng=${lng}`);
-    //   })
-    //   .catch((error) => console.error('Error', error));
   };
 
   return (
@@ -57,12 +44,11 @@ const Searchbar = () => {
         <Configure hitsPerPage={8} />
         <PlacesAutocomplete
           value={search}
-          onChange={handleChange}
-          onSelect={handleSelect}
+          onChange={handlePlacesChange}
+          onSelect={handlePlacesSelect}
           shouldFetchSuggestions={search.length > 3}
         >
           {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => {
-            console.log(suggestions);
             return (
               <>
                 <Popover
@@ -86,14 +72,9 @@ const Searchbar = () => {
                       <VStack align="stretch">
                         {suggestions.map((suggestion) => {
                           return (
-                            <HStack>
+                            <HStack _hover={{ cursor: 'pointer', backgroundColor: 'gray.100' }}>
                               <Icon as={IoLocationOutline} />
-                              <Text
-                                _hover={{ cursor: 'pointer', backgroundColor: 'gray.100' }}
-                                px="2"
-                                {...getSuggestionItemProps(suggestion)}
-                                mt="0px"
-                              >
+                              <Text px="2" {...getSuggestionItemProps(suggestion)} mt="0px">
                                 {suggestion.description}
                               </Text>
                             </HStack>

@@ -7,7 +7,6 @@ const FoodSearchHitWrapper = ({ hits }) => {
   const router = useRouter();
 
   const routeToFood = (foodId) => {
-    console.log(foodId);
     router.push(`/food/${foodId}`);
   };
   return (
