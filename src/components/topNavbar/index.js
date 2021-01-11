@@ -29,7 +29,6 @@ import {
   Divider,
   VStack,
 } from '@chakra-ui/react';
-import { StarIcon } from '@chakra-ui/icons';
 import { MdMenu } from 'react-icons/md';
 import { useAuth } from '@components/auth';
 import { useAuthModal } from '@components/auth/authModal';
@@ -38,6 +37,7 @@ import api from '@api';
 import nookies from 'nookies';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
+import Searchbar from '@components/search/Searchbar';
 
 const TopNavbar = () => {
   const { colorMode } = useColorMode();
@@ -103,7 +103,7 @@ const TopNavbar = () => {
         onClick={routeToHomePage}
       />
 
-      <Input flex="3" placeholder="Search for lists, foods, users" borderColor="gray.200" />
+      <Searchbar />
 
       <IconButton
         variant="ghost"
