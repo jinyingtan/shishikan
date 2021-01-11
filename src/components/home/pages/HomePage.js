@@ -8,11 +8,12 @@ import FoodItemHitsWrapper from '@components/list/modules/FoodItemHitsWrapper';
 import { useAuth } from '@components/auth';
 import FoodFilterBy from '../modules/FoodFilterBy';
 import UnAuthHomePage from '@components/home/modules/UnAuthHomePage';
+import { geocodeByAddress, getLatLng } from 'react-places-autocomplete';
 
 const FoodItemInfiniteHit = connectInfiniteHits(FoodItemHitsWrapper);
 const VirtualRefinementList = connectRefinementList(() => null);
 
-const HomePage = () => {
+const HomePage = ({ around, ...rest }) => {
   const auth = useAuth();
 
   const [latLngFilter, setLatLngFilter] = useState('');
@@ -26,6 +27,20 @@ const HomePage = () => {
   const onSearchStateChange = (searchState) => {
     setSearchState(searchState);
   };
+
+  useEffect(() => {
+    if (around) {
+      geocodeByAddress(around)
+        .then((results) => getLatLng(results[0]))
+        .then((latLng) => {
+          const { lat, lng } = latLng;
+          onLatLngUpdated(`${lat},${lng}`);
+        })
+        .catch((error) => console.error('Error', error));
+    } else {
+      onLatLngUpdated('');
+    }
+  }, [around]);
 
   if (!auth.user) {
     return (

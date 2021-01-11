@@ -10,46 +10,67 @@ import {
   PopoverTrigger,
   PopoverContent,
   PopoverBody,
-  StackDivider,
   Text,
+  HStack,
+  Icon,
 } from '@chakra-ui/react';
+import { InstantSearch, Configure, connectHits } from 'react-instantsearch-dom';
+import { searchClient } from '@utils/algolia';
+import FoodSearchHitsWrapper from './FoodSearchHitsWrapper';
+import { IoLocationOutline } from 'react-icons/io5';
+import { useRouter } from 'next/router';
+
+const FoodSearchHits = connectHits(FoodSearchHitsWrapper);
+
 const Searchbar = () => {
-  const [isSearchOpen, setIsOpen] = useState(false);
-  const close = () => setIsOpen(false);
-  const [address, setAddress] = useState('');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const router = useRouter();
+
+  const close = () => {
+    setIsSearchOpen(false);
+  };
 
   const handleChange = (address) => {
-    setAddress(address);
+    console.log(address);
+    setSearch(address);
   };
 
   const handleSelect = (address) => {
-    geocodeByAddress(address)
-      .then((results) => getLatLng(results[0]))
-      .then((latLng) => console.log('Success', latLng))
-      .catch((error) => console.error('Error', error));
+    setSearch('');
+    router.push(`/?around=${address}`);
+    // geocodeByAddress(address)
+    //   .then((results) => getLatLng(results[0]))
+    //   .then((latLng) => {
+    //     const { lat, lng } = latLng;
+    //     router.push(`/?lat=${lat}&lng=${lng}`);
+    //   })
+    //   .catch((error) => console.error('Error', error));
   };
 
   return (
-    <>
+    <InstantSearch searchClient={searchClient} indexName="food">
       <Head>
         <script src={GOOGLE_PLACE_AUTOCOMPLETE_URL}></script>
       </Head>
       <Flex flex="3">
+        <Configure hitsPerPage={8} />
         <PlacesAutocomplete
-          value={address}
+          value={search}
           onChange={handleChange}
           onSelect={handleSelect}
-          shouldFetchSuggestions={address.length > 3}
+          shouldFetchSuggestions={search.length > 3}
         >
           {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => {
+            console.log(suggestions);
             return (
               <>
                 <Popover
                   placement="bottom-start"
                   returnFocusOnClose={false}
-                  isOpen={address.length > 3 && suggestions.length > 0}
+                  isOpen={search.length > 3 || suggestions.length > 0}
                   onClose={close}
-                  closeOnBlur={false}
+                  closeOnBlur={true}
                   autoFocus={false}
                 >
                   <PopoverTrigger>
@@ -62,19 +83,24 @@ const Searchbar = () => {
                           Loading...
                         </Text>
                       )}
-                      <VStack divider={<StackDivider borderColor="gray.200" />} spacing={4} align="stretch">
+                      <VStack align="stretch">
                         {suggestions.map((suggestion) => {
                           return (
-                            <Text
-                              _hover={{ cursor: 'pointer', backgroundColor: 'gray.100' }}
-                              py="10px"
-                              px="2"
-                              {...getSuggestionItemProps(suggestion)}
-                            >
-                              {suggestion.description}
-                            </Text>
+                            <HStack>
+                              <Icon as={IoLocationOutline} />
+                              <Text
+                                _hover={{ cursor: 'pointer', backgroundColor: 'gray.100' }}
+                                px="2"
+                                {...getSuggestionItemProps(suggestion)}
+                                mt="0px"
+                              >
+                                {suggestion.description}
+                              </Text>
+                            </HStack>
                           );
                         })}
+
+                        <FoodSearchHits />
                       </VStack>
                     </PopoverBody>
                   </PopoverContent>
@@ -84,7 +110,7 @@ const Searchbar = () => {
           }}
         </PlacesAutocomplete>
       </Flex>
-    </>
+    </InstantSearch>
   );
 };
 
