@@ -55,7 +55,6 @@ const Searchbar = () => {
                   placement="bottom-start"
                   returnFocusOnClose={false}
                   isOpen={search.length > 3 || suggestions.length > 0}
-                  onClose={close}
                   closeOnBlur={true}
                   autoFocus={false}
                 >
