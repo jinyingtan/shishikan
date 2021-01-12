@@ -13,18 +13,32 @@ import {
   Text,
   HStack,
   Icon,
+  Box,
 } from '@chakra-ui/react';
 import { InstantSearch, Configure, connectHits } from 'react-instantsearch-dom';
 import { searchClient } from '@utils/algolia';
 import FoodSearchHitsWrapper from './FoodSearchHitsWrapper';
 import { IoLocationOutline } from 'react-icons/io5';
 import { useRouter } from 'next/router';
+import { useAuth } from '@components/auth';
+import { getFood } from '@utils/algolia/filteringRules';
+import useDebouncedEffect from '@utils/hooks/useDebouncedEffect';
 
 const FoodSearchHits = connectHits(FoodSearchHitsWrapper);
 
 const Searchbar = ({ ...rest }) => {
   const [search, setSearch] = useState('');
+  const [algoliaSearch, setAlgoliaSearch] = useState('');
   const router = useRouter();
+  const auth = useAuth();
+
+  useDebouncedEffect(
+    () => {
+      setAlgoliaSearch(search);
+    },
+    200,
+    [search]
+  );
 
   const handlePlacesChange = (address) => {
     setSearch(address);
@@ -35,13 +49,23 @@ const Searchbar = ({ ...rest }) => {
     router.push(`/?around=${address}`);
   };
 
+  if (!auth.user) {
+    return (
+      <Box>
+        <Head>
+          <script src={GOOGLE_PLACE_AUTOCOMPLETE_URL}></script>
+        </Head>
+      </Box>
+    );
+  }
+
   return (
     <InstantSearch searchClient={searchClient} indexName="food">
       <Head>
         <script src={GOOGLE_PLACE_AUTOCOMPLETE_URL}></script>
       </Head>
       <Flex flex="3" {...rest}>
-        <Configure hitsPerPage={8} />
+        <Configure hitsPerPage={5} query={algoliaSearch} filters={getFood(auth?.user?.uid)} />
         <PlacesAutocomplete
           value={search}
           onChange={handlePlacesChange}
