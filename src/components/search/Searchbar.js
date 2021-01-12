@@ -13,6 +13,7 @@ import {
   Text,
   HStack,
   Icon,
+  Box,
 } from '@chakra-ui/react';
 import { InstantSearch, Configure, connectHits } from 'react-instantsearch-dom';
 import { searchClient } from '@utils/algolia';
@@ -47,6 +48,16 @@ const Searchbar = ({ ...rest }) => {
     setSearch('');
     router.push(`/?around=${address}`);
   };
+
+  if (!auth.user) {
+    return (
+      <Box>
+        <Head>
+          <script src={GOOGLE_PLACE_AUTOCOMPLETE_URL}></script>
+        </Head>
+      </Box>
+    );
+  }
 
   return (
     <InstantSearch searchClient={searchClient} indexName="food">
