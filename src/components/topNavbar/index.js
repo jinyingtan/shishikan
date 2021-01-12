@@ -38,6 +38,7 @@ import nookies from 'nookies';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import Searchbar from '@components/search/Searchbar';
+import MobileSearchbar from '@components/search/MobileSearchbar';
 
 const TopNavbar = () => {
   const { colorMode } = useColorMode();
@@ -103,7 +104,8 @@ const TopNavbar = () => {
         onClick={routeToHomePage}
       />
 
-      <Searchbar />
+      <Searchbar display={{ base: 'none', md: 'flex' }} />
+      <MobileSearchbar display={{ base: 'flex', md: 'none' }} />
 
       <IconButton
         variant="ghost"

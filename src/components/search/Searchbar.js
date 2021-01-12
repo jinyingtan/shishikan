@@ -22,7 +22,7 @@ import { useRouter } from 'next/router';
 
 const FoodSearchHits = connectHits(FoodSearchHitsWrapper);
 
-const Searchbar = () => {
+const Searchbar = ({ ...rest }) => {
   const [search, setSearch] = useState('');
   const router = useRouter();
 
@@ -40,7 +40,7 @@ const Searchbar = () => {
       <Head>
         <script src={GOOGLE_PLACE_AUTOCOMPLETE_URL}></script>
       </Head>
-      <Flex flex="3">
+      <Flex flex="3" {...rest}>
         <Configure hitsPerPage={8} />
         <PlacesAutocomplete
           value={search}
@@ -61,7 +61,7 @@ const Searchbar = () => {
                   <PopoverTrigger>
                     <Input placeholder="Search for lists, foods, users" borderColor="gray.200" {...getInputProps()} />
                   </PopoverTrigger>
-                  <PopoverContent minW="800px">
+                  <PopoverContent minW={{ base: '95vw', md: '50vw' }}>
                     <PopoverBody>
                       {loading && (
                         <Text py="10px" px="2">
