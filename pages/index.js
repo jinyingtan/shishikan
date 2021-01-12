@@ -12,10 +12,11 @@ export async function getServerSideProps(ctx) {
       ctx.res.end();
     }
     const user = getUserFromToken(token);
-
+    const around = ctx.query?.around;
     return {
       props: {
         user: user || null,
+        around: around || null,
       },
     };
   } catch (error) {
@@ -23,11 +24,11 @@ export async function getServerSideProps(ctx) {
   }
 }
 
-export default function Home({ user }) {
+export default function Home({ user, around }) {
   return (
     <AuthProvider user={user}>
       <TopNavbar />
-      <HomePage />
+      <HomePage around={around} />
       <BottomNavbar />
     </AuthProvider>
   );

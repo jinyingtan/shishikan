@@ -32,6 +32,7 @@
     "react-dropzone": "^11.2.4",
     "react-icons": "^4.1.0",
     "react-instantsearch-dom": "^6.8.2",
+    "react-places-autocomplete": "^7.3.0",
     "react-responsive-carousel": "^3.2.11",
     "react-select": "^3.1.1",
     "uuid": "^8.3.2",
