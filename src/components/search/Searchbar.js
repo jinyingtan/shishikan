@@ -88,7 +88,7 @@ const Searchbar = ({ ...rest }) => {
                         <VStack align="stretch">
                           {suggestions.map((suggestion) => {
                             return (
-                              <HStack _hover={{ cursor: 'pointer', backgroundColor: 'gray.100' }}>
+                              <HStack key={suggestion.placeId} _hover={{ cursor: 'pointer', backgroundColor: 'gray.100' }}>
                                 <Icon as={IoLocationOutline} />
                                 <Text px="2" {...getSuggestionItemProps(suggestion)} mt="0px">
                                   {suggestion.description}
