@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { GOOGLE_PLACE_AUTOCOMPLETE_URL } from '@constants/google';
 import PlacesAutocomplete from 'react-places-autocomplete';
 import {
   Flex,
@@ -22,6 +21,7 @@ import { useRouter } from 'next/router';
 import { useAuth } from '@components/auth';
 import { getFood } from '@utils/algolia/filteringRules';
 import useDebouncedEffect from '@utils/hooks/useDebouncedEffect';
+import { useGoogleMaps } from '@components/googleMaps';
 
 const FoodSearchHits = connectHits(FoodSearchHitsWrapper);
 
@@ -30,15 +30,7 @@ const Searchbar = ({ ...rest }) => {
   const [algoliaSearch, setAlgoliaSearch] = useState('');
   const router = useRouter();
   const auth = useAuth();
-  const [isGmapLoaded, setIsGmapLoaded] = useState(false);
-
-  useEffect(() => {
-    window.initMap = () => setIsGmapLoaded(true);
-    window.mapCallback = function() {
-      window.initMap && window.initMap();
-      window.initGeo && window.initGeo();
-    }; 
-  }, []);
+  const googleMaps = useGoogleMaps();
 
   useDebouncedEffect(
     () => {
@@ -65,7 +57,7 @@ const Searchbar = ({ ...rest }) => {
     <InstantSearch searchClient={searchClient} indexName="food">
       <Flex flex="3" {...rest}>
         <Configure hitsPerPage={5} query={algoliaSearch} filters={getFood(auth?.user?.uid)} />
-        {isGmapLoaded ? (
+        {googleMaps.isLoaded ? (
           <PlacesAutocomplete
             value={search}
             onChange={handlePlacesChange}
