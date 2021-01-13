@@ -33,8 +33,6 @@ function MyApp({ Component, pageProps }) {
               <link href="/favicon" rel="icon" type="image/png" sizes="48x48" />
               <link rel="apple-touch-icon" href="/ssk.png"></link>
               <meta name="theme-color" content="#ffffff" />
-
-              <script async defer src={`${GOOGLE_PLACE_AUTOCOMPLETE_URL}&callback=mapCallback`} />
             </Head>
             <Component {...pageProps} />
           </ColorModeProvider>

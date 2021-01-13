@@ -1,34 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Input, FormControl, FormLabel, FormErrorMessage, FormHelperText } from '@chakra-ui/react';
-import { GOOGLE_PLACE_AUTOCOMPLETE_URL } from '@constants/google';
+import { Input, FormControl, FormLabel, FormErrorMessage } from '@chakra-ui/react';
+import { useGoogleMaps } from '@components/googleMaps';
 
 let autoComplete;
-
-const loadScript = (url, callback) => {
-  let script = document.createElement('script');
-  script.type = 'text/javascript';
-
-  if (script.readyState) {
-    script.onreadystatechange = function () {
-      if (script.readyState === 'loaded' || script.readyState === 'complete') {
-        script.onreadystatechange = null;
-        callback();
-      }
-    };
-  } else {
-    script.onload = () => callback();
-  }
-
-  script.src = url;
-  document.getElementsByTagName('head')[0].appendChild(script);
-};
-
-const unloadScript = () => {
-  const allScripts = document.getElementsByTagName('script');
-  [].filter.call(allScripts, (scpt) => scpt.src.indexOf('libraries=places') >= 0)[0].remove();
-
-  window.google = {};
-};
 
 /**
  * The field that has google places auto complete.
@@ -43,20 +17,7 @@ const unloadScript = () => {
 const GooglePlacesAutoCompleteField = ({ label, help, onChange, error, disabled, required }) => {
   const autoCompleteRef = useRef(null);
   const [query, setQuery] = useState('');
-
-  useEffect(() => {
-    loadScript(GOOGLE_PLACE_AUTOCOMPLETE_URL, () => handleScriptLoad(setQuery, autoCompleteRef));
-
-    return function cleanup() {
-      unloadScript();
-    };
-  }, []);
-
-  const handleScriptLoad = (updateQuery, autoCompleteRef) => {
-    autoComplete = new window.google.maps.places.Autocomplete(autoCompleteRef.current);
-    autoComplete.setFields(['address_components', 'formatted_address']);
-    autoComplete.addListener('place_changed', () => handlePlaceSelect(updateQuery));
-  };
+  const googleMaps = useGoogleMaps();
 
   const handlePlaceSelect = async (updateQuery) => {
     const addressObject = autoComplete.getPlace();
@@ -65,23 +26,33 @@ const GooglePlacesAutoCompleteField = ({ label, help, onChange, error, disabled,
     onChange(formatted_address);
   };
 
+  useEffect(() => {
+    if (googleMaps.isLoaded) {
+      autoComplete = new window.google.maps.places.Autocomplete(autoCompleteRef.current);
+      autoComplete.setFields(['address_components', 'formatted_address']);
+      autoComplete.addListener('place_changed', () => handlePlaceSelect(setQuery));
+    }
+  }, [googleMaps]);
+
   return (
-    <FormControl isDisabled={disabled} isInvalid={error} isRequired={required}>
-      <FormLabel>{label}</FormLabel>
-      <Input
-        ref={autoCompleteRef}
-        placeholder=""
-        id="googlePlaces"
-        onChange={(event) => {
-          if (event.target.value.length === 0) {
-            onChange('');
-          }
-          setQuery(event.target.value);
-        }}
-        value={query}
-      />
-      <FormErrorMessage>{error}</FormErrorMessage>
-    </FormControl>
+    <>
+      <FormControl isDisabled={disabled} isInvalid={error} isRequired={required}>
+        <FormLabel>{label}</FormLabel>
+        <Input
+          ref={autoCompleteRef}
+          placeholder=""
+          id="googlePlaces"
+          onChange={(event) => {
+            if (event.target.value.length === 0) {
+              onChange('');
+            }
+            setQuery(event.target.value);
+          }}
+          value={query}
+        />
+        <FormErrorMessage>{error}</FormErrorMessage>
+      </FormControl>
+    </>
   );
 };
 
