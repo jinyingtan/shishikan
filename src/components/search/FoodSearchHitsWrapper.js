@@ -12,7 +12,7 @@ const FoodSearchHitWrapper = ({ hits }) => {
   return (
     <>
       {hits.map((food, index) => (
-        <HStack _hover={{ cursor: 'pointer', backgroundColor: 'gray.100' }} onClick={() => routeToFood(food.objectID)}>
+        <HStack index={food.objectID} _hover={{ cursor: 'pointer', backgroundColor: 'gray.100' }} onClick={() => routeToFood(food.objectID)}>
           <Icon as={FiTriangle} />
           <Text px="2">{food.name}</Text>
         </HStack>
