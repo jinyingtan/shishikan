@@ -9,16 +9,16 @@ import { useAuth } from '@components/auth';
 import FoodFilterBy from '../modules/FoodFilterBy';
 import UnAuthHomePage from '@components/home/modules/UnAuthHomePage';
 import { geocodeByAddress, getLatLng } from 'react-places-autocomplete';
+import { useGoogleMaps } from '@components/googleMaps';
 
 const FoodItemInfiniteHit = connectInfiniteHits(FoodItemHitsWrapper);
 const VirtualRefinementList = connectRefinementList(() => null);
 
 const HomePage = ({ around, ...rest }) => {
   const auth = useAuth();
-
   const [latLngFilter, setLatLngFilter] = useState('');
-
   const [searchState, setSearchState] = useState({});
+  const googleMaps = useGoogleMaps();
 
   const onLatLngUpdated = (latLng) => {
     setLatLngFilter(latLng);
@@ -29,7 +29,7 @@ const HomePage = ({ around, ...rest }) => {
   };
 
   useEffect(() => {
-    if (around) {
+    if (around && googleMaps.isLoaded) {
       geocodeByAddress(around)
         .then((results) => getLatLng(results[0]))
         .then((latLng) => {
@@ -40,7 +40,7 @@ const HomePage = ({ around, ...rest }) => {
     } else {
       onLatLngUpdated('');
     }
-  }, [around]);
+  }, [around, googleMaps]);
 
   if (!auth.user) {
     return (

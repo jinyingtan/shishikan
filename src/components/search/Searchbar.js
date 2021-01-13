@@ -1,6 +1,4 @@
-import React, { useState } from 'react';
-import Head from 'next/head';
-import { GOOGLE_PLACE_AUTOCOMPLETE_URL } from '@constants/google';
+import React, { useState, useEffect } from 'react';
 import PlacesAutocomplete from 'react-places-autocomplete';
 import {
   Flex,
@@ -23,6 +21,7 @@ import { useRouter } from 'next/router';
 import { useAuth } from '@components/auth';
 import { getFood } from '@utils/algolia/filteringRules';
 import useDebouncedEffect from '@utils/hooks/useDebouncedEffect';
+import { useGoogleMaps } from '@components/googleMaps';
 
 const FoodSearchHits = connectHits(FoodSearchHitsWrapper);
 
@@ -31,6 +30,7 @@ const Searchbar = ({ ...rest }) => {
   const [algoliaSearch, setAlgoliaSearch] = useState('');
   const router = useRouter();
   const auth = useAuth();
+  const googleMaps = useGoogleMaps();
 
   useDebouncedEffect(
     () => {
@@ -50,69 +50,66 @@ const Searchbar = ({ ...rest }) => {
   };
 
   if (!auth.user) {
-    return (
-      <Box>
-        <Head>
-          <script src={GOOGLE_PLACE_AUTOCOMPLETE_URL}></script>
-        </Head>
-      </Box>
-    );
+    return <Box></Box>;
   }
 
   return (
     <InstantSearch searchClient={searchClient} indexName="food">
-      <Head>
-        <script src={GOOGLE_PLACE_AUTOCOMPLETE_URL}></script>
-      </Head>
       <Flex flex="3" {...rest}>
         <Configure hitsPerPage={5} query={algoliaSearch} filters={getFood(auth?.user?.uid)} />
-        <PlacesAutocomplete
-          value={search}
-          onChange={handlePlacesChange}
-          onSelect={handlePlacesSelect}
-          shouldFetchSuggestions={search.length > 3}
-        >
-          {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => {
-            return (
-              <>
-                <Popover
-                  placement="bottom-start"
-                  returnFocusOnClose={false}
-                  isOpen={search.length > 3 || suggestions.length > 0}
-                  closeOnBlur={true}
-                  autoFocus={false}
-                >
-                  <PopoverTrigger>
-                    <Input placeholder="Search for lists, foods, users" borderColor="gray.200" {...getInputProps()} />
-                  </PopoverTrigger>
-                  <PopoverContent minW={{ base: '95vw', md: '50vw' }}>
-                    <PopoverBody>
-                      {loading && (
-                        <Text py="10px" px="2">
-                          Loading...
-                        </Text>
-                      )}
-                      <VStack align="stretch">
-                        {suggestions.map((suggestion) => {
-                          return (
-                            <HStack _hover={{ cursor: 'pointer', backgroundColor: 'gray.100' }}>
-                              <Icon as={IoLocationOutline} />
-                              <Text px="2" {...getSuggestionItemProps(suggestion)} mt="0px">
-                                {suggestion.description}
-                              </Text>
-                            </HStack>
-                          );
-                        })}
+        {googleMaps.isLoaded ? (
+          <PlacesAutocomplete
+            value={search}
+            onChange={handlePlacesChange}
+            onSelect={handlePlacesSelect}
+            shouldFetchSuggestions={search.length > 3}
+            googleCallbackName="mapCallback"
+          >
+            {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => {
+              return (
+                <>
+                  <Popover
+                    placement="bottom-start"
+                    returnFocusOnClose={false}
+                    isOpen={search.length > 3 || suggestions.length > 0}
+                    closeOnBlur={true}
+                    autoFocus={false}
+                  >
+                    <PopoverTrigger>
+                      <Input placeholder="Search for lists, foods, users" borderColor="gray.200" {...getInputProps()} />
+                    </PopoverTrigger>
+                    <PopoverContent minW={{ base: '95vw', md: '50vw' }}>
+                      <PopoverBody>
+                        {loading && (
+                          <Text py="10px" px="2">
+                            Loading...
+                          </Text>
+                        )}
+                        <VStack align="stretch">
+                          {suggestions.map((suggestion) => {
+                            return (
+                              <HStack
+                                key={suggestion.placeId}
+                                _hover={{ cursor: 'pointer', backgroundColor: 'gray.100' }}
+                              >
+                                <Icon as={IoLocationOutline} />
+                                <Text px="2" {...getSuggestionItemProps(suggestion)} mt="0px">
+                                  {suggestion.description}
+                                </Text>
+                              </HStack>
+                            );
+                          })}
 
-                        <FoodSearchHits />
-                      </VStack>
-                    </PopoverBody>
-                  </PopoverContent>
-                </Popover>
-              </>
-            );
-          }}
-        </PlacesAutocomplete>
+                          <FoodSearchHits />
+                        </VStack>
+                      </PopoverBody>
+                    </PopoverContent>
+                  </Popover>
+                </>
+              );
+            }}
+          </PlacesAutocomplete>
+        ) : null}
       </Flex>
     </InstantSearch>
   );
