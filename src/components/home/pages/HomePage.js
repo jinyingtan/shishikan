@@ -15,10 +15,13 @@ const VirtualRefinementList = connectRefinementList(() => null);
 
 const HomePage = ({ around, ...rest }) => {
   const auth = useAuth();
-
   const [latLngFilter, setLatLngFilter] = useState('');
-
   const [searchState, setSearchState] = useState({});
+  const [isGmapLoaded, setIsGmapLoaded] = useState(false);
+
+  useEffect(() => {
+    window.initGeo = () => setIsGmapLoaded(true);
+  }, []);
 
   const onLatLngUpdated = (latLng) => {
     setLatLngFilter(latLng);
@@ -29,7 +32,7 @@ const HomePage = ({ around, ...rest }) => {
   };
 
   useEffect(() => {
-    if (around) {
+    if (around && isGmapLoaded) {
       geocodeByAddress(around)
         .then((results) => getLatLng(results[0]))
         .then((latLng) => {
@@ -40,7 +43,7 @@ const HomePage = ({ around, ...rest }) => {
     } else {
       onLatLngUpdated('');
     }
-  }, [around]);
+  }, [around, isGmapLoaded]);
 
   if (!auth.user) {
     return (

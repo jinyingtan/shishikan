@@ -34,9 +34,10 @@ const Searchbar = ({ ...rest }) => {
 
   useEffect(() => {
     window.initMap = () => setIsGmapLoaded(true);
-    const gmapScriptEl = document.createElement(`script`);
-    gmapScriptEl.src = `${GOOGLE_PLACE_AUTOCOMPLETE_URL}&callback=initMap`;
-    document.querySelector(`body`).insertAdjacentElement(`beforeend`, gmapScriptEl);
+    window.mapCallback = function() {
+      window.initMap && window.initMap();
+      window.initGeo && window.initGeo();
+    }; 
   }, []);
 
   useDebouncedEffect(
@@ -70,7 +71,7 @@ const Searchbar = ({ ...rest }) => {
             onChange={handlePlacesChange}
             onSelect={handlePlacesSelect}
             shouldFetchSuggestions={search.length > 3}
-            googleCallbackName="initMap"
+            googleCallbackName="mapCallback"
           >
             {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => {
               return (
