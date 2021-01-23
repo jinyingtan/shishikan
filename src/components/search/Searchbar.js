@@ -119,6 +119,7 @@ const Searchbar = ({ ...rest }) => {
                       })}
                       <FoodSearchHits />
                     </List>
+
                   </Flex>
                 </>
               );
