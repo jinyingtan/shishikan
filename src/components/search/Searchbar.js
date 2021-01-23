@@ -1,18 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PlacesAutocomplete from 'react-places-autocomplete';
-import {
-  Flex,
-  Input,
-  VStack,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverBody,
-  Text,
-  HStack,
-  Icon,
-  Box,
-} from '@chakra-ui/react';
+import { Flex, Input, Text, HStack, Icon, Box, List, ListItem } from '@chakra-ui/react';
 import { InstantSearch, Configure, connectHits } from 'react-instantsearch-dom';
 import { searchClient } from '@utils/algolia';
 import FoodSearchHitsWrapper from './FoodSearchHitsWrapper';
@@ -31,6 +19,8 @@ const Searchbar = ({ ...rest }) => {
   const router = useRouter();
   const auth = useAuth();
   const googleMaps = useGoogleMaps();
+  const [googleResults, setGoogleResults] = useState([]);
+  const [showResults, setShowResults] = useState(false);
 
   useDebouncedEffect(
     () => {
@@ -49,6 +39,14 @@ const Searchbar = ({ ...rest }) => {
     router.push(`/?around=${address}`);
   };
 
+  useEffect(() => {
+    if (search.length > 3 || googleResults.length > 0) {
+      setShowResults(true);
+    } else {
+      setShowResults(false);
+    }
+  }, [search]);
+
   if (!auth.user) {
     return <Box></Box>;
   }
@@ -66,45 +64,58 @@ const Searchbar = ({ ...rest }) => {
             googleCallbackName="mapCallback"
           >
             {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => {
+              if (suggestions.length > 0) {
+                setGoogleResults(suggestions);
+              }
               return (
                 <>
-                  <Popover
-                    placement="bottom-start"
-                    returnFocusOnClose={false}
-                    isOpen={search.length > 3 || suggestions.length > 0}
-                    closeOnBlur={true}
-                    autoFocus={false}
-                  >
-                    <PopoverTrigger>
-                      <Input placeholder="Search for lists, foods, users" borderColor="gray.200" {...getInputProps()} />
-                    </PopoverTrigger>
-                    <PopoverContent minW={{ base: '95vw', md: '50vw' }}>
-                      <PopoverBody>
-                        {loading && (
-                          <Text py="10px" px="2">
-                            Loading...
-                          </Text>
-                        )}
-                        <VStack align="stretch">
-                          {suggestions.map((suggestion) => {
-                            return (
+                  <Flex flexDirection="column" w="100%" h="100%" position="relative">
+                    <Input
+                      placeholder="Search for lists, foods, users"
+                      borderColor="gray.200"
+                      {...getInputProps()}
+                      onBlur={() => setShowResults(false)}
+                    />
+                    {showResults ? (
+                      <List
+                        position="absolute"
+                        left="0"
+                        right="0"
+                        top="calc(100% + 10px)"
+                        zIndex="999"
+                        spacing={1}
+                        backgroundColor="white"
+                        boxShadow="0 2px 4px rgba(0,0,0,.12)"
+                        paddingTop="5px"
+                        paddingBottom="5px"
+                        borderRadius="lg"
+                        borderColor="gray.200"
+                        borderWidth="1px"
+                      >
+                        {googleResults.map((suggestion) => {
+                          return (
+                            <ListItem>
                               <HStack
+                                paddingTop="5px"
+                                paddingBottom="5px"
+                                paddingLeft="20px"
+                                paddingRight="20px"
                                 key={suggestion.placeId}
                                 _hover={{ cursor: 'pointer', backgroundColor: 'gray.100' }}
+                                {...getSuggestionItemProps(suggestion)}
                               >
                                 <Icon as={IoLocationOutline} />
-                                <Text px="2" {...getSuggestionItemProps(suggestion)} mt="0px">
+                                <Text px="2" mt="0px">
                                   {suggestion.description}
                                 </Text>
                               </HStack>
-                            );
-                          })}
-
-                          <FoodSearchHits />
-                        </VStack>
-                      </PopoverBody>
-                    </PopoverContent>
-                  </Popover>
+                            </ListItem>
+                          );
+                        })}
+                        <FoodSearchHits />
+                      </List>
+                    ) : null}
+                  </Flex>
                 </>
               );
             }}
