@@ -74,47 +74,51 @@ const Searchbar = ({ ...rest }) => {
                       placeholder="Search for lists, foods, users"
                       borderColor="gray.200"
                       {...getInputProps()}
-                      onBlur={() => setShowResults(false)}
+                      onBlur={() => {
+                        setTimeout(() => {
+                          setShowResults(false);
+                        }, 500);
+                      }}
                     />
-                    {showResults ? (
-                      <List
-                        position="absolute"
-                        left="0"
-                        right="0"
-                        top="calc(100% + 10px)"
-                        zIndex="999"
-                        spacing={1}
-                        backgroundColor="white"
-                        boxShadow="0 2px 4px rgba(0,0,0,.12)"
-                        paddingTop="5px"
-                        paddingBottom="5px"
-                        borderRadius="lg"
-                        borderColor="gray.200"
-                        borderWidth="1px"
-                      >
-                        {googleResults.map((suggestion) => {
-                          return (
-                            <ListItem>
-                              <HStack
-                                paddingTop="5px"
-                                paddingBottom="5px"
-                                paddingLeft="20px"
-                                paddingRight="20px"
-                                key={suggestion.placeId}
-                                _hover={{ cursor: 'pointer', backgroundColor: 'gray.100' }}
-                                {...getSuggestionItemProps(suggestion)}
-                              >
-                                <Icon as={IoLocationOutline} />
-                                <Text px="2" mt="0px">
-                                  {suggestion.description}
-                                </Text>
-                              </HStack>
-                            </ListItem>
-                          );
-                        })}
-                        <FoodSearchHits />
-                      </List>
-                    ) : null}
+
+                    <List
+                      display={showResults ? 'block' : 'none'}
+                      position="absolute"
+                      left="0"
+                      right="0"
+                      top="calc(100% + 10px)"
+                      zIndex="999"
+                      spacing={1}
+                      backgroundColor="white"
+                      boxShadow="0 2px 4px rgba(0,0,0,.12)"
+                      paddingTop="5px"
+                      paddingBottom="5px"
+                      borderRadius="lg"
+                      borderColor="gray.200"
+                      borderWidth="1px"
+                    >
+                      {googleResults.map((suggestion) => {
+                        return (
+                          <ListItem>
+                            <HStack
+                              paddingTop="5px"
+                              paddingBottom="5px"
+                              paddingLeft="20px"
+                              paddingRight="20px"
+                              key={suggestion.placeId}
+                              _hover={{ cursor: 'pointer', backgroundColor: 'gray.100' }}
+                              {...getSuggestionItemProps(suggestion)}
+                            >
+                              <Icon as={IoLocationOutline} />
+                              <Text px="2" mt="0px">
+                                {suggestion.description}
+                              </Text>
+                            </HStack>
+                          </ListItem>
+                        );
+                      })}
+                      <FoodSearchHits />
+                    </List>
                   </Flex>
                 </>
               );
