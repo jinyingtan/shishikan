@@ -27,14 +27,17 @@ import {
 import { MaxWidthContainer } from '@components/containers';
 import GooglePlacesInput from '@components/input/GooglePlacesInput';
 import DragNDropInput from '@components/input/DragNDropInput';
+import { v4 as uuidv4 } from 'uuid';
 
-const AddPage = ({ listId }) => {
+const AddPage = ({ listId, foodId, food }) => {
   const router = useRouter();
   const toast = useToast();
   const [myLists, setMyLists] = useState([]);
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
+  const [editFood, setEditFood] = useState({});
+  const [images, setImages] = useState([]);
 
   const validationSchema = Yup.object().shape({
     list: Yup.string().required('Required'),
@@ -52,7 +55,7 @@ const AddPage = ({ listId }) => {
   });
 
   const formik = useFormik({
-    initialValues: {
+    initialValues: editFood || {
       list: '',
       name: '',
       description: '',
@@ -66,9 +69,17 @@ const AddPage = ({ listId }) => {
     validationSchema: validationSchema,
     enableReinitialize: true,
     onSubmit: (values) => {
-      handleCreateFood(values);
+      handleFormSubmission(values);
     },
   });
+
+  const handleFormSubmission = async (values) => {
+    if (foodId) {
+      handleEditFood(values);
+    } else {
+      handleCreateFood(values);
+    }
+  };
 
   const handleCreateFood = (values) => {
     const { list, name, description, categories, tagNames, address, price, verdict, images } = values;
@@ -92,6 +103,56 @@ const AddPage = ({ listId }) => {
       });
   };
 
+  const handleEditFood = (values) => {
+    const { list, name, description, categories, tagNames, address, price, verdict, images } = values;
+    const categoryIds = categories.map((category) => category.value);
+    const tags = tagNames.map((tag) => tag.value);
+    const coverImage = images[0];
+    setIsLoading(true);
+    api.lists
+      .updateFood(foodId, list, name, description, categoryIds, tags, address, price, verdict, coverImage, images)
+      .then((snapshot) => {
+        router.push(`list/${list}`);
+      })
+      .catch((error) => {
+        toast({
+          title: 'Error',
+          description: error.message,
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+      });
+  };
+
+  // Used for editing Food.
+  useEffect(() => {
+    if (food && listId && categories) {
+      const categories = food.categories.map((category) => {
+        return { label: category.name, value: category.id };
+      });
+      const tagNames = food.tags.map((tag) => {
+        return { label: tag.name, value: tag.name };
+      });
+      let editFood = {
+        list: listId,
+        name: food.name,
+        description: food.description,
+        categories: categories,
+        tagNames: tagNames,
+        address: food.address.name,
+        price: food.price,
+        verdict: food.verdict,
+        images: food.imageUrls.map((imageUrl) => ({
+          imageUrl: imageUrl.raw,
+        })),
+      };
+      setEditFood(editFood);
+      // need another state for initial images because formik will re-render too much causing maximum callstack.
+      setImages(food.imageUrls.map((imageUrl) => imageUrl.raw));
+    }
+  }, [food, listId, categories]);
+
   useEffect(() => {
     api.lists.getLists().then((docs) => {
       const myLists = docs.map((myListDoc) => myListDoc.data());
@@ -114,10 +175,10 @@ const AddPage = ({ listId }) => {
     <MaxWidthContainer>
       <Box w="100%" display="flex" justifyContent="center" as="form" onSubmit={formik.handleSubmit}>
         <Stack w="100%" maxW="800px" spacing="24px">
-          <Heading>Add Food Item</Heading>
+          {foodId ? <Heading>Edit Food Item</Heading> : <Heading>Add Food Item</Heading>}
 
           <DragNDropInput
-            initialImages={null}
+            initialImages={images}
             onChange={(selectedImages) => {
               formik.setFieldValue('images', selectedImages);
             }}
@@ -169,6 +230,7 @@ const AddPage = ({ listId }) => {
           >
             <FormLabel>Food Category</FormLabel>
             <ReactSelect
+              {...formik.getFieldProps('categories')}
               isMulti
               name="categories"
               closeMenuOnSelect={false}
@@ -176,6 +238,7 @@ const AddPage = ({ listId }) => {
               className="basic-multi-select"
               classNamePrefix="select"
               onChange={(inputValue) => {
+                console.log(inputValue);
                 formik.setFieldValue('categories', inputValue);
               }}
             />
@@ -236,6 +299,7 @@ const AddPage = ({ listId }) => {
           </FormControl>
 
           <GooglePlacesInput
+            value={formik.getFieldProps('address').value}
             label="Address"
             disabled={formik.isSubmitting}
             onChange={(address) => {
@@ -247,6 +311,7 @@ const AddPage = ({ listId }) => {
           <FormControl as="fieldset" id="tags" isDisabled={formik.isSubmitting}>
             <FormLabel as="legend">Tags</FormLabel>
             <CreatableSelect
+              {...formik.getFieldProps('tagNames')}
               isClearable
               onChange={(values) => {
                 formik.setFieldValue('tagNames', values);

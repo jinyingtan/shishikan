@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import Carousel from '@components/foodDetails/modules/Carousel';
-import { Box, Text, Heading, Stack, Link, Tag, Icon, Divider, StackDivider } from '@chakra-ui/react';
+import { Box, Text, Heading, Stack, Link, Tag, Icon, Divider, StackDivider, Button } from '@chakra-ui/react';
 import { MaxWidthContainer } from '@components/containers';
 import { Cost, Verdict } from '@components/cards';
 import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { AiFillTags } from 'react-icons/ai';
 import api from '@api';
 import Review from '@components/foodDetails/modules/Review';
+import { useRouter } from 'next/router';
 
 const FoodDetailPage = ({ food, list, isMine }) => {
+  const router = useRouter();
   const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
@@ -17,6 +19,10 @@ const FoodDetailPage = ({ food, list, isMine }) => {
       setReviews(reviews);
     });
   }, []);
+
+  const navigateToEditPage = () => {
+    router.push(`/edit?foodId=${food.id}&listId=${list.id}`);
+  };
   return (
     <MaxWidthContainer px={{ base: 0, md: '20px' }} mt={{ base: 0, md: '40px' }} maxW="900px">
       <Box w="100%" display="flex" justifyContent="center">
@@ -63,6 +69,15 @@ const FoodDetailPage = ({ food, list, isMine }) => {
                   {tag.name}
                 </Tag>
               ))}
+            </Stack>
+
+            <Text fontSize={'sm'} color={'gray.500'}>
+              Actions:
+            </Text>
+            <Stack direction="row">
+              <Button width={{ base: '100%', md: '100px' }} onClick={navigateToEditPage}>
+                Edit
+              </Button>
             </Stack>
           </Stack>
 

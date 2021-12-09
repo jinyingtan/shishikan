@@ -14,7 +14,7 @@ let autoComplete;
  * @param {string} error is the error for the field
  * @param {boolean} disabled is to disable the field
  */
-const GooglePlacesAutoCompleteField = ({ label, help, onChange, error, disabled, required }) => {
+const GooglePlacesAutoCompleteField = ({ label, help, onChange, error, disabled, required, value }) => {
   const autoCompleteRef = useRef(null);
   const [query, setQuery] = useState('');
   const googleMaps = useGoogleMaps();
@@ -33,6 +33,12 @@ const GooglePlacesAutoCompleteField = ({ label, help, onChange, error, disabled,
       autoComplete.addListener('place_changed', () => handlePlaceSelect(setQuery));
     }
   }, [googleMaps]);
+
+  useEffect(() => {
+    if (value) {
+      setQuery(value);
+    }
+  }, [value]);
 
   return (
     <>
