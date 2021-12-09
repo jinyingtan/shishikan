@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   Flex,
   IconButton,
-  useColorMode,
   Icon,
-  Input,
   Button,
   HStack,
   Avatar,
@@ -41,8 +39,6 @@ import Searchbar from '@components/search/Searchbar';
 import MobileSearchbar from '@components/search/MobileSearchbar';
 
 const TopNavbar = () => {
-  const { colorMode } = useColorMode();
-  const bgColor = { light: 'white', dark: 'gray.900' };
   const auth = useAuth();
   const authModal = useAuthModal();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -92,7 +88,6 @@ const TopNavbar = () => {
       width="100%"
       px="2"
       py="2"
-      bg={bgColor[colorMode]}
       boxShadow="base"
       zIndex="100"
       height="56px"
